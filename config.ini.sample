@@ -1,0 +1,5 @@
+[qa]
+base_url=<qa url, without a trailing slash>
+
+[stage]
+base_url=<stage url, without a trailing slash>
