@@ -9,6 +9,13 @@ API tests for Pantheon v2.
 - Python3
 - virtualenv
 - virtualenvwrapper
+```
+$ pip install venv virtualenvwrapper
+$ mkvirtualenv api-test-env
+$ workon api-test-env
+```
+You will have virtual environment to use where you can install all your dependencies.
+
 
 ### Installation:
 - Install all the dependencies.
