@@ -1,5 +1,45 @@
+[login]
+username=<Enter_username for pantheon2 login>
+password=<Enter_password for pantheon2 login>
+
+[uploader]
+username=<enter username for pantheon uploader>
+password=<enter password for pantheon uploader>
+
+[admin_login]
+username=<enter admin username required for teardown operations>
+password=<enter admin password required for teardown operations>
+
 [qa]
-base_url=<qa url, without a trailing slash>
+base_url=https://qa.example.com/
 
 [stage]
-base_url=<stage url, without a trailing slash>
+base_url=https://stage.example.com/
+
+[dev]
+base_url=https://stage.example.com/
+
+[prod]
+base_url=https://prod.example.com/
+
+[proxy]
+proxy_server=<proxy server url>
+
+[test_mode]
+headless=yes  #If you don't want your tests to run in headless mode, change the value to 'no'.
+
+[test_repo]
+test_repo_url=<URL for test repo to be used, this is a required value for the tests to execute>
+repo_name=<Repository name as mentioned in pantheon2.yml in the above test repo>
+test_repo_branch=<branch of the test repo to clone>
+module_prefix=<Add a prefix text which is present in every module title to be used for search>
+assembly_prefix=<Add a prefix text for assemblies separately to search for assembly>
+number_of_modules_uploaded=<number of modules uploaded,eg. 3>
+
+[git_import_test_repo]
+git_import_repo_url=<URL for test repo to be used, this is a required value for the tests to execute>
+git_import_repo_name=<Repository name as mentioned in pantheon2.yml in the above test repo>
+git_import_repo_branch=<specify the branch name from which you want to import, eg. master>
+number_of_modules_imported=<specify the known number of modules you are uploading, eg. 10>
+module_prefix=<Add a prefix text which is present in every module title to be used for search>
+assembly_prefix=<Add a prefix text for assemblies separately to search for assembly>
