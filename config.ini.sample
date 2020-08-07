@@ -22,6 +22,11 @@ base_url=https://stage.example.com/
 [prod]
 base_url=https://prod.example.com/
 
+[git_import_pod_details]
+dev=<input url for git import tests>
+qa=<input url for git import tests>
+stage=<input url for git import tests>
+
 [proxy]
 proxy_server=<proxy server url>
 

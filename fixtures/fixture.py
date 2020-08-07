@@ -18,17 +18,22 @@ test_repo_URL = base.config_reader('test_repo', 'test_repo_url')
 test_repo_name = base.config_reader('test_repo', 'repo_name')
 test_repo_branch = base.config_reader('test_repo', 'test_repo_branch')
 git_import_repo = base.config_reader('git_import_test_repo', 'git_import_repo_name')
+module_title_prefix = base.config_reader('test_repo', 'module_prefix')
 
 # setting the appropriate URL value from env variable
 env = os.environ['PANTHEON_ENV']
 if env == "qa":
     url = base.config_reader('qa', 'base_url')
+    git_import_server = base.config_reader('git_import_pod_details', 'qa')
 elif env == "dev":
     url = base.config_reader('dev', 'base_url')
+    git_import_server = base.config_reader('git_import_pod_details', 'dev')
 elif env == "stage":
     url = base.config_reader('stage', 'base_url')
+    git_import_server = base.config_reader('git_import_pod_details', 'stage')
 elif env == "prod":
     url = base.config_reader('prod', 'base_url')
+    git_import_server = base.config_reader('git_import_pod_details', 'prod')
 else:
     raise Exception("Please set the env variable PANTHEON_ENV as dev/qa/stage specifically. "
                     "To run your tests against QA, run `$export PANTHEON_ENV=qa` before you run the tests")
@@ -140,21 +145,14 @@ def setup(setup_test_repo, setup_test_products):
     lcc.log_info("Deleting the test-repo from QA env...")
     path_to_repo = url + "content/repositories/" + test_repo_name
     lcc.log_info("Test repo node being deleted at: %s" % path_to_repo)
-
+    time.sleep(10)
     body = {":operation": "delete"}
     response = requests.post(path_to_repo, data=body, auth=(admin_username, admin_auth))
     check_that("The test repo was deleted successfully",
                response.status_code, equal_to(200))
-    time.sleep(10)
+    time.sleep(15)
 
-    path_to_git_repo = url + "content/repositories/" + git_import_repo
-    lcc.log_info("Test repo node used for git import functionality being deleted at: %s" % path_to_git_repo)
-    response_git_delete = requests.post(path_to_git_repo, data=body, auth=(admin_username, admin_auth))
-    check_that(
-        "The git import test repo was deleted successfully from backend", response_git_delete.status_code, equal_to(200))
-    time.sleep(10)
     # Deletes the products created using api endpoint
-
     lcc.log_info("Deleting test products created.. ")
     body = {":operation": "delete"}
     path_to_new_product_node = url + "content/products/" + product_name_uri
@@ -163,3 +161,11 @@ def setup(setup_test_repo, setup_test_products):
     response1 = requests.post(path_to_new_product_node, data=body, auth=(admin_username, admin_auth))
     check_that("Test product version created was deleted successfully",
                response1.status_code, equal_to(200))
+    time.sleep(15)
+
+    #Deleting the git repo uploaded via git import in the test suite.
+    path_to_git_repo = url + "content/repositories/" + git_import_repo
+    lcc.log_info("Test repo node used for git import functionality being deleted at: %s" % path_to_git_repo)
+    response_git_delete = requests.post(path_to_git_repo, data=body, auth=(admin_username, admin_auth))
+    check_that(
+        "The git import test repo was deleted successfully from backend", response_git_delete.status_code, equal_to(200))
