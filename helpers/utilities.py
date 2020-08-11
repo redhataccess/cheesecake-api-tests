@@ -5,7 +5,8 @@ from polling2 import poll
 import yaml
 import requests
 import lemoncheesecake.api as lcc
-
+import os
+# sys.path.append("..")
 
 
 def generate_random_string(string_length):
@@ -16,11 +17,14 @@ def generate_random_string(string_length):
 
 
 def read_variant_name_from_pantheon2config():
-    pantheon_config = yaml.safe_load(open('../test-repo/pantheon2.yml', 'r'))
+    print(os.getcwd())
+    pantheon_config = yaml.safe_load(open('./pantheon2.yml', 'r'))
     for variant in pantheon_config["variants"]:
         if variant["canonical"] == True:
             variant = variant["name"]
-            return variant
+            lcc.log_info("Variant name used: %s" % variant)
+            return str(variant)
+
 
 def select_first_module_from_search_results(url, module_title_prefix):
     search_request = requests.get(url + "pantheon/internal/modules.json?search=" + module_title_prefix)
@@ -34,10 +38,3 @@ def select_first_module_from_search_results(url, module_title_prefix):
     else:
         lcc.log_info("no results found for further test operations, either Search API is broken or there is no test data")
         raise Exception
-
-
-
-
-
-
-

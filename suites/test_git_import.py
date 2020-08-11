@@ -24,8 +24,8 @@ class test_git_import:
   def git_import_api(self):
     lcc.log_info("Checking for post request to git import functionality...")
     payload = {
-              "branch": git_import_repo_branch,
-              "repo": git_import_repo_URL
+              "repo": git_import_repo_URL,
+              "branch": git_import_repo_branch
             }
     git_import_req = requests.post(fixture.git_import_server + "/clone", data=payload)
     time.sleep(30)
@@ -40,14 +40,13 @@ class test_git_import:
 
     def check_if_imported(response):
       result1 = response.json()["results"]
+      lcc.log_info("list of results found in total but not specific to this request: %s" % str(response.json()["size"]))
       for result in result1:
-        print("list of results found")
-        print(result1["size"])
         if result["pant:transientSourceName"] == git_import_repo_Name:
           imported_modules_array.append(result["jcr:title"])
-          print("found matching result")
+          print("Found a matching result, waiting for more...")
         else:
-          print("No matching result found yet")
+          print("No matching result found yet...")
           time.sleep(2)
       return len(imported_modules_array) == int(number_of_modules)
 

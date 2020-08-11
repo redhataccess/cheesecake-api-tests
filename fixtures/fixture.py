@@ -41,7 +41,6 @@ else:
 logging.info("Tests are running against Pantheon instance: %s", url)
 username = base.config_reader('login', 'username')
 auth = base.config_reader('login', 'password')
-headless = base.config_reader('test_mode', 'headless')
 uploader_username = base.config_reader('uploader', 'username')
 uploader_password = base.config_reader('uploader', 'password')
 admin_username = base.config_reader('admin_login', 'username')
@@ -52,6 +51,7 @@ number_of_modules_uploaded = base.config_reader('test_repo', 'number_of_modules_
 # Creating product name and uri with random_string
 random_string = utilities.generate_random_string(4)
 product_name = constants.product_name + random_string
+global product_name_uri
 product_name_uri = constants.product_name_uri + random_string
 
 
@@ -88,8 +88,6 @@ def setup_test_repo():
             ('python3 ../pantheon.py --user={} --password={} --server={} push'.format(uploader_username,
                                                                                       uploader_password,
                                                                                       url)), shell=True)
-        os.mkdir('screenshots')
-        os.chdir('screenshots')
     except subprocess.CalledProcessError as e:
         logging.info(
             "Test setup did not complete successfully, error encountered during 'pantheon push'")
@@ -100,9 +98,6 @@ def setup_test_repo():
 @lcc.fixture(scope="session")
 def setup_test_products():
     lcc.log_info("Creating test product..")
-    random_string = utilities.generate_random_string(4)
-    product_name = constants.product_name + random_string
-    product_name_uri = constants.product_name_uri + random_string
     path_to_product_node = url + "content/products/" + product_name_uri
     lcc.log_info("Test Product node being created at: %s" % path_to_product_node)
 
@@ -133,6 +128,15 @@ def setup_test_products():
                response.status_code, any_of(equal_to(201), equal_to(200)))
 
 
+
+    path_to_product_id = path_to_product_node + ".2.json"
+    product_version_id_req = requests.get(path_to_product_id)
+    product_version_id = product_version_id_req.json()["versions"][constants.product_version]["jcr:uuid"]
+    lcc.log_info("Fetching product version id of the product created: %s id: %s" % (path_to_product_id,
+                                                                                    str(product_version_id)))
+    return product_version_id
+
+
 @lcc.fixture(names=("api_auth", "auth"), scope="session")
 def setup(setup_test_repo, setup_test_products):
     lcc.log_info("Initialising the session/auth...")
@@ -145,7 +149,7 @@ def setup(setup_test_repo, setup_test_products):
     lcc.log_info("Deleting the test-repo from QA env...")
     path_to_repo = url + "content/repositories/" + test_repo_name
     lcc.log_info("Test repo node being deleted at: %s" % path_to_repo)
-    time.sleep(10)
+    time.sleep(15)
     body = {":operation": "delete"}
     response = requests.post(path_to_repo, data=body, auth=(admin_username, admin_auth))
     check_that("The test repo was deleted successfully",
@@ -169,3 +173,5 @@ def setup(setup_test_repo, setup_test_products):
     response_git_delete = requests.post(path_to_git_repo, data=body, auth=(admin_username, admin_auth))
     check_that(
         "The git import test repo was deleted successfully from backend", response_git_delete.status_code, equal_to(200))
+
+

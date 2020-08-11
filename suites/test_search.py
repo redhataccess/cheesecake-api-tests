@@ -20,12 +20,12 @@ class test_search:
   @lcc.test("Verify that the recently uploaded modules are present in search results: %s" % module_title_prefix)
   def search(self):
     lcc.log_info("Making a search request for prefix: API test module")
-    search_request = requests.get(fixture.url + "pantheon/internal/modules.json?search=" + module_title_prefix)
-    print(search_request.json())
+    search_endpoint = fixture.url + "pantheon/internal/modules.json?search=" + module_title_prefix
+    lcc.log_info(str(search_endpoint))
+    search_request = requests.get(search_endpoint)
     search_results = search_request.json()
     number_of_results = search_results["size"]
-
-    lcc.log_info(str(search_request.status_code))
     lcc.log_info(str(search_request.json()))
+    check_that("The search request should be successful", search_request.status_code, equal_to(200))
     check_that("Number of search results should be >= %s as per the test data; " % number_of_modules,
                int(number_of_results), greater_than_or_equal_to(int(number_of_results)))
