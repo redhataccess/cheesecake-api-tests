@@ -2,13 +2,9 @@ import configparser
 import os
 
 
-def base_url():
+def config_reader(key, value):
     config = configparser.ConfigParser()
     config_file = os.path.join(os.path.dirname(__file__), '..', 'config.ini')
     config.read(config_file)
-    url = config['qa']['base_url']
-    print("Base URL: {}".format(url))
-    return url
-
-
-
+    val = config[key][value]
+    return val

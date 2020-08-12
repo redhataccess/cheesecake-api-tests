@@ -1,2 +1,6 @@
 lemoncheesecake
 requests
+polling2
+git-python
+pyyaml
+
