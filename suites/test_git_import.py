@@ -6,6 +6,7 @@ from helpers import utilities
 from helpers import constants
 import time
 import requests
+import json
 from fixtures import fixture
 from polling2 import poll
 
@@ -17,19 +18,28 @@ module_title_prefix = base.config_reader('git_import_test_repo', 'module_prefix'
 assembly_title_prefix = base.config_reader('git_import_test_repo', 'assembly_prefix')
 
 
-@lcc.suite("Suite: Git import functionality", rank=3)
+@lcc.suite(description="Suite: Git import functionality", rank=3)
 class test_git_import:
+  # api_auth = lcc.inject_fixture("api_auth")
 
   @lcc.test("Verify that git import API is able to git import modules successfully")
   def git_import_api(self):
     lcc.log_info("Checking for post request to git import functionality...")
     payload = {
-              "repo": git_import_repo_URL,
-              "branch": git_import_repo_branch
-            }
+      "branch": git_import_repo_branch,
+      "repo": git_import_repo_URL
+    }
+
+    # payload = {
+    #   'branch': 'assemblies-git-2',
+    #   'repo': 'https://gitlab.cee.redhat.com/ccs-tools/gitimport-sample-repo-pantheonv2'
+    # }
+    payload = json.dumps(payload)
+    print(str(payload))
+    lcc.log_info(str(payload))
     git_import_req = requests.post(fixture.git_import_server + "/clone", data=payload)
-    time.sleep(30)
-    check_that("POST request to git import was done", git_import_req.status_code, equal_to(200))
+    time.sleep(15)
+    require_that("POST request to git import was done", git_import_req.status_code, equal_to(200))
 
     search_url = fixture.url + 'pantheon/internal/modules.json?search=' + module_title_prefix
     lcc.log_info("Git import functionality verified using endpoint: %s" % search_url)
@@ -39,18 +49,23 @@ class test_git_import:
     imported_modules_array = []
 
     def check_if_imported(response):
+      time.sleep(2)
+      print(str(response.status_code))
       result1 = response.json()["results"]
       lcc.log_info("list of results found in total but not specific to this request: %s" % str(response.json()["size"]))
+      print(str(response.json()["size"]))
       for result in result1:
         if result["pant:transientSourceName"] == git_import_repo_Name:
           imported_modules_array.append(result["jcr:title"])
           print("Found a matching result, waiting for more...")
+
         else:
           print("No matching result found yet...")
           time.sleep(2)
-      return len(imported_modules_array) == int(number_of_modules)
 
-    poll(lambda: requests.get(search_url), check_success=check_if_imported, step=5, timeout=150 )
+      return len(imported_modules_array) >= int(number_of_modules)
+
+    poll(lambda: requests.get(search_url), check_success=check_if_imported, step=5, timeout=150)
 
     imported_modules_request = requests.get(search_url)
     imported_modules = imported_modules_request.json()
@@ -69,6 +84,16 @@ class test_git_import:
                                                                                   str(len(imported_modules_array))))
     check_that("Count of modules uploaded using git import", len(imported_modules_array),
                equal_to(int(number_of_modules)))
+
+  def teardown_suite(self):
+    # Deleting the git repo uploaded via git import in the test suite.
+    path_to_git_repo = fixture.url + "content/repositories/" + git_import_repo_Name
+    lcc.log_info("Test repo node used for git import functionality being deleted at: %s" % path_to_git_repo)
+    body = {":operation": "delete"}
+    body = json.dumps(body)
+    response_git_delete = requests.post(path_to_git_repo, data=body, auth=(fixture.admin_username, fixture.admin_auth))
+    check_that(
+      "The git import test repo was deleted successfully from backend", response_git_delete.status_code, equal_to(200))
 
 
 
