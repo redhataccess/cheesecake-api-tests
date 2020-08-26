@@ -14,7 +14,7 @@ sys.path.append("..")
 module_title_prefix = base.config_reader('test_repo', 'module_prefix')
 
 
-@lcc.suite("Suite: Verify that authenticated user can edit metadata and publish module", rank=1)
+@lcc.suite(description="Suite: Verify that authenticated user can edit metadata and publish module", rank=1)
 class test_module_edit_publish:
   api_auth = lcc.inject_fixture("api_auth")
 

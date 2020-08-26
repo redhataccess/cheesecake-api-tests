@@ -147,6 +147,16 @@ def setup(setup_test_repo, setup_test_products):
 
     yield session
 
+    # Deletes the products created using api endpoint
+    lcc.log_info("Deleting test products created as a part of the tests.. ")
+    path_to_new_product_node = url + "bin/cpm/nodes/node.json/content/products/" + product_name_uri
+    lcc.log_info("Test Product node being deleted at: %s" % path_to_new_product_node)
+    response1 = session.delete(path_to_new_product_node)
+    print(str(response1.content))
+    check_that("Test product version created was deleted successfully",
+               response1.status_code, equal_to(200))
+    time.sleep(15)
+
     # This block of code is the teardown method which deletes the repository uploaded for testing
     lcc.log_info("Deleting the test-repo from QA env...")
     path_to_repo = url + "bin/cpm/nodes/node.json/content/repositories/" + test_repo_name
@@ -154,29 +164,15 @@ def setup(setup_test_repo, setup_test_products):
     time.sleep(15)
     # body = {":operation": "delete"}
     # body = json.dumps(body)
-    response = session.delete(path_to_repo)
+    response = requests.delete(path_to_repo, auth=(admin_username, admin_auth))
     check_that("The test repo was deleted successfully",
                response.status_code, equal_to(200))
-    time.sleep(15)
-
-    # Deletes the products created using api endpoint
-    lcc.log_info("Deleting test products created.. ")
-
-    path_to_new_product_node = url + "bin/cpm/nodes/node.json/content/products/" + product_name_uri
-    lcc.log_info("Test Product node being deleted at: %s" % path_to_new_product_node)
-
-    response1 = session.delete(path_to_new_product_node)
-    print(str(response1))
-    check_that("Test product version created was deleted successfully",
-               response1.status_code, equal_to(200))
     time.sleep(15)
 
     #Deleting the git repo uploaded via git import in the test suite.
     path_to_git_repo = url + "bin/cpm/nodes/node.json/content/repositories/" + git_import_repo
     lcc.log_info("Test repo node used for git import functionality being deleted at: %s" % path_to_git_repo)
-    response_git_delete = session.delete(path_to_git_repo)
-    print(str(response_git_delete))
+    response_git_delete = requests.delete(path_to_git_repo, auth=(admin_username, admin_auth))
+    print(str(response_git_delete.content))
     check_that(
         "The git import test repo was deleted successfully from backend", response_git_delete.status_code, equal_to(200))
-
-

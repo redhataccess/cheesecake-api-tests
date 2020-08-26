@@ -34,6 +34,10 @@ class test_git_import:
     lcc.log_info(str(payload))
     git_import_req = requests.post(fixture.git_import_server + "/clone", data=payload)
     time.sleep(15)
+    print("Response code for git import request:" + str(git_import_req.status_code))
+    print(git_import_req.content)
+
+    #print("Response json: " + str(git_import_req.json()))
     require_that("POST request to git import was done", git_import_req.status_code, equal_to(200))
 
     search_url = fixture.url + 'pantheon/internal/modules.json?search=' + module_title_prefix
