@@ -83,16 +83,3 @@ class test_git_import:
                                                                                   str(len(imported_modules_array))))
     check_that("Count of modules uploaded using git import", len(imported_modules_array),
                greater_than_or_equal_to(int(number_of_modules)))
-
-  def teardown_suite(self):
-    # Deleting the git repo uploaded via git import in the test suite.
-    path_to_git_repo = fixture.url + "bin/cpm/nodes/node.json/content/repositories/" + git_import_repo_Name
-    lcc.log_info("Test repo node used for git import functionality being deleted at: %s" % path_to_git_repo)
-
-    response_git_delete = self.api_auth.delete(path_to_git_repo)
-
-    check_that(
-      "The git import test repo was deleted successfully from backend", response_git_delete.status_code, equal_to(200))
-
-
-

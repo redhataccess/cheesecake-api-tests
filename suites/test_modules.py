@@ -23,7 +23,7 @@ class test_module_edit_publish:
     variant = utilities.read_variant_name_from_pantheon2config()
     lcc.log_info(str(variant))
     variant = str(variant)
-    path_for_module = utilities.select_first_module_from_search_results(fixture.url, module_title_prefix)
+    path_for_module = utilities.select_first_item_from_search_results(fixture.url, module_title_prefix)
     edit_metadata_url = fixture.url + "content/" + path_for_module + "/en_US/variants/" +\
                         variant + "/draft/metadata"
     lcc.log_info("Edit metadata request for module: %s " % edit_metadata_url)
