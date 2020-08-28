@@ -25,9 +25,8 @@ class test_module_edit_publish:
     variant = utilities.read_variant_name_from_pantheon2config()
     lcc.log_info(str(variant))
     variant = str(variant)
-    test_module_edit_publish.path_for_module = utilities.select_first_module_from_search_results(fixture.url,
-                                                                                                 module_title_prefix)
-    edit_metadata_url = fixture.url + "content/" + test_module_edit_publish.path_for_module + "/en_US/variants/" +\
+    self.path_for_module = utilities.select_first_item_from_search_results(fixture.url, module_title_prefix)
+    edit_metadata_url = fixture.url + "content/" + self.path_for_module + "/en_US/variants/" +\
                         variant + "/draft/metadata"
     lcc.log_info("Edit metadata request for module: %s " % edit_metadata_url)
 
@@ -38,10 +37,9 @@ class test_module_edit_publish:
                "urlFragment": constants.urlFragment,
                "searchKeywords": constants.searchKeywords}
     edit_metadata_request = self.api_auth.post(edit_metadata_url, data = payload)
-    test_module_edit_publish.request_url = fixture.url + "content/" + test_module_edit_publish.path_for_module \
-                                           + ".7.json"
+    self.request_url = fixture.url + "content/" + self.path_for_module + ".7.json"
     #check that metadata has been added successfully.
-    response = api_auth.get(test_module_edit_publish.request_url)
+    response = api_auth.get(self.request_url)
     metadata_response = response.json()["en_US"]["variants"][variant]["draft"]["metadata"]
     check_that("The edit metadata request was successful", edit_metadata_request.status_code, equal_to(200))
     check_that("The product version has been updated successfully", metadata_response["productVersion"],
@@ -55,7 +53,7 @@ class test_module_edit_publish:
     lcc.log_info(str(variant))
     variant = str(variant)
     # Get path of the module for which metadata was added
-    publish_url = fixture.url + test_module_edit_publish.path_for_module
+    publish_url = fixture.url + self.path_for_module
     payload = {
         ":operation": "pant:publish",
         "locale": "en_US",
@@ -63,7 +61,7 @@ class test_module_edit_publish:
     }
     publish_module_request = self.api_auth.post(publish_url, data=payload)
     check_that("The publish request was successful", publish_module_request.status_code, equal_to(200))
-    response = api_auth.get(test_module_edit_publish.request_url)
+    response = api_auth.get(self.request_url)
     # Check that the node has been marked as released
     check_that("The published module now has a 'released' node", response.json()["en_US"]["variants"][variant],
                contains_string("released"))
