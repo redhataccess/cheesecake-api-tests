@@ -40,6 +40,10 @@ $ export PYTHONPATH=/home/username/sample/cheesecake-api-tests
 ``` mv config.ini.sample config.ini ```
 Make the appropriate changes to base URL in config.ini file.
 
+* To run the test against QA env, set the environment variable appropriately.
+``` export PANTHEON_ENV=qa ```
+Acceptable values for PANTHEON_ENV variable are dev/qa/stage.
+
 - To execute the API tests:
 
 ``` lcc run ```

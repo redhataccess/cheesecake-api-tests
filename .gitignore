@@ -1,4 +1,10 @@
 config.ini
+.idea/
+pantheon.py
+report/
+reports/
+test-repo/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
