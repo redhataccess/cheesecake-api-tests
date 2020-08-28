@@ -43,9 +43,14 @@ def select_first_item_from_search_results(url, title_prefix):
 def fetch_uuid_of_assembly(url, assembly_path, variant):
     assembly_path = url + "content/" + assembly_path + ".7.json"
     assembly_path_endpoint = requests.get(assembly_path)
-    print(assembly_path)
+    print("\n Assembly path: " + assembly_path)
+    lcc.log_info("Assembly path being checked: %s" % assembly_path)
     assembly_uuid = assembly_path_endpoint.json()["en_US"]["variants"][variant]["jcr:uuid"]
     print("Assembly uuid: " + str(assembly_uuid))
     return assembly_uuid
+
+def fetch_json_response_from_adoc_path(url, path):
+    request_path = url + "/content" + path + "7.json"
+
 
 

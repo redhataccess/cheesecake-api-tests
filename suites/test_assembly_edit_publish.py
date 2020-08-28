@@ -56,7 +56,7 @@ class test_assembly_edit_publish:
         check_that("The URL fragment has been updated successfully", metadata_response["urlFragment"],
                    equal_to(constants.assembly_urlfragment))
 
-    @lcc.depends_on('test_assemblies.test_assembly_edit_publish.verify_edit_metadata')
+
     @lcc.test("Verify that the user can publish an assembly successfully and check for /api/assembly/variant.json/"
               "<assembly_uuid> endpoint")
     def verify_publish_assembly(self, api_auth):
@@ -65,19 +65,25 @@ class test_assembly_edit_publish:
                    "locale": "en_US",
                    "variant": self.variant
                    }
-        payload = json.dumps(payload)
+
         publish_url = fixture.url + "content/" + self.path_for_assembly
-        print(publish_url)
+        print("\n API end point used for publish request: " + publish_url)
         time.sleep(10)
         publish_request = api_auth.post(publish_url, data=payload)
-        print("Publish request response: \n" + str(publish_request.content))
-
+        print("\n Publish request response: \n" + str(publish_request.content))
         check_that("The publish request is successful", publish_request.status_code, equal_to(200))
         time.sleep(15)
+
+        req = api_auth.get(fixture.url + "content/" + self.path_for_assembly + ".7.json")
+
+        check_that("The status node in variants > variant >: ", req.json()["en_US"]["variants"][self.variant],
+                   has_entry("released"), quiet=True)
+
         assembly_uuid = utilities.fetch_uuid_of_assembly(fixture.url, self.path_for_assembly, self.variant)
 
         published_assembly_url = fixture.url + "api/assembly/variant.json/" + assembly_uuid
-        lcc.log_info("Assembly api endpoint: %s" % published_assembly_url)
+        print("published assembly url: \n" + published_assembly_url)
+        lcc.log_info("Published Assembly api endpoint: %s" % published_assembly_url)
         published_assembly_request = api_auth.get(published_assembly_url)
         check_that("The /api/assembly/variant.json/<assembly_uuid> endpoint for a published assembly",
                    published_assembly_request.status_code, equal_to(200))
