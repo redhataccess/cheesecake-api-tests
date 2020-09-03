@@ -26,15 +26,19 @@ env = os.environ['PANTHEON_ENV']
 if env == "qa":
     url = base.config_reader('qa', 'base_url')
     git_import_server = base.config_reader('git_import_pod_details', 'qa')
+    cp_url = base.config_reader('qa', 'cp_url')
 elif env == "dev":
     url = base.config_reader('dev', 'base_url')
     git_import_server = base.config_reader('git_import_pod_details', 'dev')
+    cp_url = base.config_reader('dev', 'cp_url')
 elif env == "stage":
     url = base.config_reader('stage', 'base_url')
     git_import_server = base.config_reader('git_import_pod_details', 'stage')
+    cp_url = base.config_reader('stage', 'cp_url')
 elif env == "prod":
     url = base.config_reader('prod', 'base_url')
     git_import_server = base.config_reader('git_import_pod_details', 'prod')
+    cp_url = base.config_reader('prod', 'cp_url')
 else:
     raise Exception("Please set the env variable PANTHEON_ENV as dev/qa/stage specifically. "
                     "To run your tests against QA, run `$export PANTHEON_ENV=qa` before you run the tests")
@@ -107,7 +111,7 @@ def setup_test_products():
               "sling:resourceType": "pantheon/product",
               "jcr:primaryType": "pant:product",
               "locale": "en-US",
-              "url": product_name_uri}
+              "urlFragment": product_name_uri}
 
     # Hit the api for create product
     response = requests.post(path_to_product_node, data=create_product_payload, auth=(username, auth))
@@ -120,7 +124,8 @@ def setup_test_products():
 
     create_version_payload = {"name": constants.product_version,
                               "sling:resourceType": "pantheon/productVersion",
-                              "jcr:primaryType": "pant:productVersion"}
+                              "jcr:primaryType": "pant:productVersion",
+                              "urlFragment": constants.product_version_uri}
 
 
     # Hit the api for create version for the above product

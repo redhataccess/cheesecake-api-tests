@@ -15,7 +15,7 @@ sys.path.append("..")
 assembly_title_prefix = base.config_reader('test_repo', 'assembly_prefix')
 
 
-@lcc.suite(description="Suite: Tests for Assemblies", rank=4)
+@lcc.suite(description="Suite: Tests for Assemblies", rank=3)
 class test_assembly_edit_publish:
     api_auth = lcc.inject_fixture("api_auth")
 
@@ -79,7 +79,7 @@ class test_assembly_edit_publish:
         check_that("The status node in variants > variant >: ", req.json()["en_US"]["variants"][self.variant],
                    has_entry("released"), quiet=True)
 
-        assembly_uuid = utilities.fetch_uuid_of_assembly(fixture.url, self.path_for_assembly, self.variant)
+        assembly_uuid = utilities.fetch_uuid(fixture.url, self.path_for_assembly, self.variant)
 
         published_assembly_url = fixture.url + "api/assembly/variant.json/" + assembly_uuid
         print("published assembly url: \n" + published_assembly_url)

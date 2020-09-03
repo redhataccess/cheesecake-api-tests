@@ -6,7 +6,11 @@ import yaml
 import requests
 import lemoncheesecake.api as lcc
 import os
+from helpers import constants
+import urllib.parse
 # sys.path.append("..")
+
+# setup_test_products = lcc.inject_fixture("setup_test_products")
 
 
 def generate_random_string(string_length):
@@ -49,8 +53,43 @@ def fetch_uuid_of_assembly(url, assembly_path, variant):
     print("Assembly uuid: " + str(assembly_uuid))
     return assembly_uuid
 
+def fetch_uuid(url, path, variant):
+    path = url + "content/" + path + ".7.json"
+    path_endpoint = requests.get(path)
+    print("\n Content path: " + path)
+    lcc.log_info("Content path being checked: %s" % path)
+    uuid = path_endpoint.json()["en_US"]["variants"][variant]["jcr:uuid"]
+    print("uuid: " + str(uuid))
+    return uuid
+
 def fetch_json_response_from_adoc_path(url, path):
     request_path = url + "/content" + path + "7.json"
+
+def add_metadata(url, path, variant, api_auth, setup_test_products):
+    edit_metadata_url = url + "content/" + path + "/en_US/variants/" + variant + "/draft/metadata"
+    print("Data Edit metadata request::", edit_metadata_url)
+    lcc.log_info("Data Edit metadata request: %s " % edit_metadata_url)
+    # Fetch the product id from fixtures, ta test product and version was created as setup step.
+    product_id = setup_test_products
+    print("Data product id::", product_id)
+    payload = {"productVersion": product_id,
+               "documentUsecase": constants.documentUsecase,
+               "urlFragment": constants.urlFragment,
+               "searchKeywords": constants.searchKeywords}
+    response = api_auth.post(edit_metadata_url, data=payload)
+    return response
+
+def publish_content(url, path, variant, api_auth):
+    publish_url = url + path
+    payload = {
+        ":operation": "pant:publish",
+        "locale": "en_US",
+        "variant": variant
+    }
+    response = api_auth.post(publish_url, data=payload)
+    return response
+
+
 
 
 
