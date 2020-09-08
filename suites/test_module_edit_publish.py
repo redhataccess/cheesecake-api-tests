@@ -13,7 +13,7 @@ import urllib.parse
 sys.path.append("..")
 
 module_title_prefix = base.config_reader('test_repo', 'module_prefix')
-
+global test_product_id
 
 @lcc.suite(description="Suite: Verify that authenticated user can edit metadata and publish module", rank=1)
 class test_module_edit_publish:
@@ -32,7 +32,7 @@ class test_module_edit_publish:
     lcc.log_info("Edit metadata request for module: %s " % edit_metadata_url)
 
     # Fetch the product id from fixtures, ta test product and version was created as setup step.
-    product_id = setup_test_products
+    product_id, product_name_uri = setup_test_products
     payload = {"productVersion": product_id,
                "documentUsecase": constants.documentUsecase,
                "urlFragment": constants.urlFragment,

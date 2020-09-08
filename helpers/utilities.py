@@ -65,19 +65,27 @@ def fetch_uuid(url, path, variant):
 def fetch_json_response_from_adoc_path(url, path):
     request_path = url + "/content" + path + "7.json"
 
-def add_metadata(url, path, variant, api_auth, setup_test_products):
+def add_metadata(url, path, variant, api_auth, setup_test_products, content_type):
+    if content_type == "module":
+        documentUsecase = constants.documentUsecase
+        urlFragment = constants.urlFragment
+        searchKeywords = constants.searchKeywords
+    elif content_type == "assembly":
+        documentUsecase = constants.assembly_documentusecase
+        urlFragment = constants.assembly_urlfragment
+        searchKeywords = constants.assembly_searchkeywords
     edit_metadata_url = url + "content/" + path + "/en_US/variants/" + variant + "/draft/metadata"
     print("Data Edit metadata request::", edit_metadata_url)
     lcc.log_info("Data Edit metadata request: %s " % edit_metadata_url)
     # Fetch the product id from fixtures, ta test product and version was created as setup step.
-    product_id = setup_test_products
+    product_id, product_name_uri = setup_test_products
     print("Data product id::", product_id)
     payload = {"productVersion": product_id,
-               "documentUsecase": constants.documentUsecase,
-               "urlFragment": constants.urlFragment,
-               "searchKeywords": constants.searchKeywords}
+               "documentUsecase": documentUsecase,
+               "urlFragment": urlFragment,
+               "searchKeywords": searchKeywords}
     response = api_auth.post(edit_metadata_url, data=payload)
-    return response
+    return response, product_name_uri
 
 def publish_content(url, path, variant, api_auth):
     publish_url = url + path

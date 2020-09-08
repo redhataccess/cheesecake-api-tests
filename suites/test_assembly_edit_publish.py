@@ -18,7 +18,7 @@ assembly_title_prefix = base.config_reader('test_repo', 'assembly_prefix')
 @lcc.suite(description="Suite: Tests for Assemblies", rank=3)
 class test_assembly_edit_publish:
     api_auth = lcc.inject_fixture("api_auth")
-
+    global product_id
 
     @lcc.test("Verify that authenticated user can edit metadata for an assembly successfully")
     def verify_edit_metadata(self, setup_test_products):
@@ -32,7 +32,7 @@ class test_assembly_edit_publish:
         lcc.log_info("Edit metadata request for assembly at : %s " % edit_metadata_url)
 
         # Fetch the product id from fixtures/fixtures.py, the test product and version was created as a setup step.
-        product_id = setup_test_products
+        product_id, product_name_uri = setup_test_products
 
         payload = {"productVersion": product_id,
                    "documentUsecase": constants.assembly_documentusecase,
@@ -46,7 +46,8 @@ class test_assembly_edit_publish:
         #check that metadata has been added successfully.
         response = self.api_auth.get(request_url)
         metadata_response = response.json()["en_US"]["variants"][self.variant]["draft"]["metadata"]
-        check_that("The edit metadata request was successful", edit_metadata_request.status_code, equal_to(200))
+        check_that("The edit metadata request was successful", edit_metadata_request.status_code,
+                   any_of(equal_to(200), equal_to(201)))
         check_that("The product version has been updated successfully", metadata_response["productVersion"],
                    equal_to(product_id))
         check_that("The document use case has been updated successfully", metadata_response["documentUsecase"],

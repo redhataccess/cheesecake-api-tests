@@ -7,12 +7,12 @@ product_version_uri = "1"# do not change this value as it is hardcoded in the te
 #Edit metaadata payload data:
 documentUsecase = "Migrate"
 urlFragment = "test_url_fragment"
-searchKeywords = "rhel8, rhel, installation"
+searchKeywords = "rhel8,rhel,installation"
 
 #Edit metadata payload for an assembly:
 assembly_documentusecase = "Troubleshoot"
 assembly_urlfragment = "test_assembly_url"
-assembly_searchkeywords = "rhel8, rhel, troubleshoot installation"
+assembly_searchkeywords = "rhel8,rhel,troubleshoot installation"
 
 #Module metadata:
 module_abstarct = "Abstarct for API test module"

@@ -55,8 +55,9 @@ number_of_modules_uploaded = base.config_reader('test_repo', 'number_of_modules_
 
 # Creating product name and uri with random_string
 random_string = utilities.generate_random_string(4)
+# global product_name
 product_name = constants.product_name + random_string
-global product_name_uri
+# global product_name_uri
 product_name_uri = constants.product_name_uri + random_string
 
 
@@ -141,7 +142,7 @@ def setup_test_products():
     product_version_id = product_version_id_req.json()["versions"][constants.product_version]["jcr:uuid"]
     lcc.log_info("Fetching product version id of the product created: %s id: %s" % (path_to_product_id,
                                                                                     str(product_version_id)))
-    return product_version_id
+    return product_version_id, product_name_uri
 
 
 @lcc.fixture(names=("api_auth", "auth"), scope="session")

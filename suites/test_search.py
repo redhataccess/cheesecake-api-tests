@@ -13,7 +13,7 @@ number_of_modules = base.config_reader('test_repo', 'number_of_modules_uploaded'
 module_title_prefix = base.config_reader('test_repo', 'module_prefix')
 
 
-@lcc.suite(description="Suite: Verify search functionality", rank=4)
+@lcc.suite(description="Suite: Verify search functionality", rank=5)
 class test_search:
   api_auth = lcc.inject_fixture("api_auth")
 
