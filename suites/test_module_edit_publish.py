@@ -13,7 +13,7 @@ import urllib.parse
 sys.path.append("..")
 
 module_title_prefix = base.config_reader('test_repo', 'module_prefix')
-global test_product_id
+module_uuid = ""
 
 @lcc.suite(description="Suite: Verify that authenticated user can edit metadata and publish module", rank=1)
 class test_module_edit_publish:
@@ -26,7 +26,7 @@ class test_module_edit_publish:
     self.variant = utilities.read_variant_name_from_pantheon2config()
     lcc.log_info(str(self.variant))
     self.variant = str(self.variant)
-    self.path_for_module = utilities.select_first_item_from_search_results(fixture.url, module_title_prefix)
+    self.path_for_module = utilities.select_nth_item_from_search_results(0, fixture.url, module_title_prefix)
     edit_metadata_url = fixture.url + "content/" + self.path_for_module + "/en_US/variants/" +\
                         self.variant + "/draft/metadata"
     lcc.log_info("Edit metadata request for module: %s " % edit_metadata_url)
@@ -72,7 +72,7 @@ class test_module_edit_publish:
     check_that("The /api/module/variant.json/<module_uuid> endpoint for a published module",
                data_from_published_module.status_code, equal_to(200))
 
-    print("Response from published module API endpoint: \n" + str(data_from_published_module.content))
+    # print("Response from published module API endpoint: \n" + str(data_from_published_module.content))
     check_that("The response is ", data_from_published_module.json()["message"], equal_to("Module Found"))
     check_that("The title of the module ", data_from_published_module.json()["module"]["title"],
                contains_string(module_title_prefix))

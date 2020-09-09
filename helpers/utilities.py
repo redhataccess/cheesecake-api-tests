@@ -30,16 +30,16 @@ def read_variant_name_from_pantheon2config():
             return str(variant)
 
 
-def select_first_item_from_search_results(url, title_prefix):
+def select_nth_item_from_search_results(n, url, title_prefix):
     search_request = requests.get(url + "pantheon/internal/modules.json?search=" + title_prefix + "&key=Updated date")
     search_results = search_request.json()
     print(str(search_request.content))
-    if int(search_results["size"]) > 0:
-        lcc.log_info("Found more than one result for search: %s, will perform tests for first result..."
-                     % title_prefix)
-        path_for_first_module = search_results["results"][0]["pant:transientPath"]
-        lcc.log_info("Further test operations on: %s " % path_for_first_module)
-        return path_for_first_module
+    if int(search_results["size"]) >= n:
+        lcc.log_info("Found more than one result for search: %s, will perform tests for %s th result..."
+                     %(title_prefix,n))
+        path_for_nth_module = search_results["results"][n]["pant:transientPath"]
+        lcc.log_info("Further test operations on: %s " % path_for_nth_module)
+        return path_for_nth_module
     else:
         lcc.log_info("no results found for further test operations, either Search API is broken or there is no test data")
         raise Exception
@@ -89,12 +89,15 @@ def add_metadata(url, path, variant, api_auth, setup_test_products, content_type
 
 def publish_content(url, path, variant, api_auth):
     publish_url = url + path
+    print("Request: ",publish_url)
     payload = {
         ":operation": "pant:publish",
         "locale": "en_US",
         "variant": variant
     }
+    print("Payload: ",payload)
     response = api_auth.post(publish_url, data=payload)
+    print("Response:", response)
     return response
 
 

@@ -25,7 +25,7 @@ class test_assembly_edit_publish:
         self.variant = utilities.read_variant_name_from_pantheon2config()
         lcc.log_info(str(self.variant))
         self.variant = str(self.variant)
-        self.path_for_assembly = utilities.select_first_item_from_search_results(fixture.url, assembly_title_prefix)
+        self.path_for_assembly = utilities.select_nth_item_from_search_results(1, fixture.url, assembly_title_prefix)
 
         edit_metadata_url = fixture.url + "content/" + self.path_for_assembly + "/en_US/variants/" + \
                             self.variant + "/draft/metadata"
@@ -42,6 +42,7 @@ class test_assembly_edit_publish:
         edit_metadata_request = self.api_auth.post(edit_metadata_url, data=payload)
 
         request_url = fixture.url + "content/" + self.path_for_assembly + ".7.json"
+        time.sleep(10)
 
         #check that metadata has been added successfully.
         response = self.api_auth.get(request_url)
@@ -61,12 +62,12 @@ class test_assembly_edit_publish:
     @lcc.test("Verify that the user can publish an assembly successfully and check for /api/assembly/variant.json/"
               "<assembly_uuid> endpoint")
     def verify_publish_assembly(self, api_auth):
-        print("variant: " + self.variant)
+        # print("variant: " + self.variant)
         payload = {":operation": "pant:publish",
                    "locale": "en_US",
                    "variant": self.variant
                    }
-
+        print("Payload: ",payload)
         publish_url = fixture.url + "content/" + self.path_for_assembly
         print("\n API end point used for publish request: " + publish_url)
         time.sleep(10)
@@ -89,7 +90,7 @@ class test_assembly_edit_publish:
         check_that("The /api/assembly/variant.json/<assembly_uuid> endpoint for a published assembly",
                    published_assembly_request.status_code, equal_to(200))
 
-        print("Response from published assembly API endpoint: \n" + str(published_assembly_request.content))
+        # print("Response from published assembly API endpoint: \n" + str(published_assembly_request.content))
         check_that("The response is ", published_assembly_request.json()["message"], equal_to("Assembly Found"))
         check_that("The title of the assembly ", published_assembly_request.json()["assembly"]["title"],
                    contains_string(assembly_title_prefix))

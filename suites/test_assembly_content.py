@@ -15,6 +15,7 @@ sys.path.append("..")
 assembly_title_prefix = base.config_reader('test_repo', 'assembly_prefix')
 assembly_prefix = base.config_reader('test_repo', 'assembly_content_prefix')
 repo_name = base.config_reader('test_repo', 'repo_name')
+module_title_prefix = base.config_reader('test_repo', 'module_prefix')
 
 
 @lcc.suite(description="Suite: Verify contents of published assembly", rank=4)
@@ -26,12 +27,30 @@ class test_assembly_content:
 
   @lcc.test("Verify response of assembly variant api")
   def verify_assembly_content(self, api_auth, setup_test_products):
+      #Publishing module included in assembly
       self.variant = utilities.read_variant_name_from_pantheon2config()
       lcc.log_info(str(self.variant))
       self.variant = str(self.variant)
-      self.path_for_assembly = utilities.select_first_item_from_search_results(fixture.url, assembly_prefix)
+      self.path_for_module = utilities.select_nth_item_from_search_results(1, fixture.url, module_title_prefix)
+      if "/assemblies" in self.path_for_module:
+          self.path_for_module = utilities.select_nth_item_from_search_results(2, fixture.url, module_title_prefix)
+      res, product_name_uri = utilities.add_metadata(fixture.url, self.path_for_module, self.variant, api_auth,
+                                                     setup_test_products, content_type="module")
+      # print(res.content)
+      utilities.publish_content(fixture.url, self.path_for_module, self.variant, api_auth)
+
+      module_uuid = utilities.fetch_uuid(fixture.url, self.path_for_module, self.variant)
+      published_module_url = fixture.url + "api/module/variant.json/" + module_uuid
+      print("published module url: \n" + published_module_url)
+      lcc.log_info("Published Module api endpoint: %s" % published_module_url)
+      data_from_published_module = api_auth.get(published_module_url)
+      print(data_from_published_module.json())
+
+      self.path_for_assembly = utilities.select_nth_item_from_search_results(0, fixture.url, assembly_prefix)
+      if "/modules" in self.path_for_assembly:
+          self.path_for_assembly = utilities.select_nth_item_from_search_results(1, fixture.url, assembly_prefix)
       res, product_name_uri = utilities.add_metadata(fixture.url, self.path_for_assembly, self.variant, api_auth, setup_test_products, content_type="assembly")
-      print(res.content)
+      # print(res.content)
       utilities.publish_content(fixture.url,self.path_for_assembly, self.variant, api_auth)
 
       assembly_uuid = utilities.fetch_uuid(fixture.url, self.path_for_assembly, self.variant)
@@ -42,7 +61,7 @@ class test_assembly_content:
       check_that("The /api/assembly/variant.json/<assembly_uuid> endpoint for a published assembly",
                  data_from_published_assembly.status_code, equal_to(200))
 
-      print("Response from published assembly API endpoint: \n" + str(data_from_published_assembly.content))
+      # print("Response from published assembly API endpoint: \n" + str(data_from_published_assembly.content))
       check_that("The response is ", data_from_published_assembly.json()["message"], equal_to("Assembly Found"))
       check_that("The title of the assembly ", data_from_published_assembly.json()["assembly"]["title"],
                  contains_string(assembly_prefix))
@@ -67,3 +86,19 @@ class test_assembly_content:
       # print(data_from_published_assembly.json()["assembly"]["products"][0]["product_name"])
       check_that("The product name", data_from_published_assembly.json()["assembly"]["products"][0]["product_name"], contains_string(constants.product_name))
       check_that("The product version", data_from_published_assembly.json()["assembly"]["products"][0]["product_version"], equal_to(constants.product_version))
+      number_of_modules_included = len(data_from_published_assembly.json()["assembly"]["modules_included"])
+      check_that("Number of Modules included", number_of_modules_included, greater_than_or_equal_to(1))
+      for i in range(number_of_modules_included):
+          check_that("Modules included",
+                     data_from_published_assembly.json()["assembly"]["modules_included"][i],
+                     all_of(has_entry("module_title"), has_entry("module_uuid"), has_entry("module_url"),
+                            has_entry("module_variant_uuid"), has_entry("module_level_offset")))
+      number_of_modules_hasPart = len(data_from_published_assembly.json()["assembly"]["hasPart"])
+      check_that("Number of Modules in hasPart", number_of_modules_hasPart, greater_than_or_equal_to(1))
+      for i in range(number_of_modules_hasPart):
+          check_that("Modules hasPart",
+                     data_from_published_assembly.json()["assembly"]["hasPart"][i],
+                     all_of(has_entry("module_title"), has_entry("module_uuid"), has_entry("module_url"),
+                            has_entry("module_variant_uuid"), has_entry("module_level_offset")))
+
+

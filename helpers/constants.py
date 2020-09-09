@@ -17,6 +17,9 @@ assembly_searchkeywords = "rhel8,rhel,troubleshoot installation"
 #Module metadata:
 module_abstarct = "Abstarct for API test module"
 
+#modules included assembly api
+modules_included_fields = ["module_uuid","module_url","module_variant_uuid","module_title","module_level_offset"]
+
 
 
 
