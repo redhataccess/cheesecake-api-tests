@@ -91,9 +91,7 @@ def setup_test_repo():
     try:
         logging.info("Using pantheon uploader to push test data to Pantheon...")
         subprocess.check_call(
-            ('python3 ../pantheon.py --user={} --password={} --server={} push'.format(uploader_username,
-                                                                                      uploader_password,
-                                                                                      url)), shell=True)
+            ('python3 ../pantheon.py --user={} --password={} --server={} push'.format(uploader_username, uploader_password, url)), shell=True)
     except subprocess.CalledProcessError as e:
         logging.info(
             "Test setup did not complete successfully, error encountered during 'pantheon push'")
@@ -152,30 +150,30 @@ def setup(setup_test_repo, setup_test_products):
     session.auth = (username, auth)
 
     yield session
-
+    #
     # # Deletes the products created using api endpoint
     # lcc.log_info("Deleting test products created as a part of the tests.. ")
-    # path_to_new_product_node = url + "bin/cpm/nodes/node.json/content/products/" + product_name_uri
-    # lcc.log_info("Test Product node being deleted at: %s" % path_to_new_product_node)
-    # response1 = session.delete(path_to_new_product_node)
-    # print(str(response1.content))
-    # check_that("Test product version created was deleted successfully",
-    #            response1.status_code, equal_to(200))
-    # time.sleep(15)
-    #
-    # # This block of code is the teardown method which deletes the repository uploaded for testing
-    # lcc.log_info("Deleting the test-repo from QA env...")
-    # path_to_repo = url + "bin/cpm/nodes/node.json/content/repositories/" + test_repo_name
-    # lcc.log_info("Test repo node being deleted at: %s" % path_to_repo)
-    # time.sleep(15)
-    # # body = {":operation": "delete"}
-    # # body = json.dumps(body)
-    # response = requests.delete(path_to_repo, auth=(admin_username, admin_auth))
-    # check_that("The test repo was deleted successfully",
-    #            response.status_code, equal_to(200))
-    # time.sleep(15)
+    path_to_new_product_node = url + "bin/cpm/nodes/node.json/content/products/" + product_name_uri
+    lcc.log_info("Test Product node being deleted at: %s" % path_to_new_product_node)
+    response1 = session.delete(path_to_new_product_node)
+    print(str(response1.content))
+    check_that("Test product version created was deleted successfully",
+               response1.status_code, equal_to(200))
+    time.sleep(15)
 
-    #Deleting the git repo uploaded via git import in the test suite.
+    # This block of code is the teardown method which deletes the repository uploaded for testing
+    lcc.log_info("Deleting the test-repo from QA env...")
+    path_to_repo = url + "bin/cpm/nodes/node.json/content/repositories/" + test_repo_name
+    lcc.log_info("Test repo node being deleted at: %s" % path_to_repo)
+    time.sleep(15)
+    # body = {":operation": "delete"}
+    # body = json.dumps(body)
+    response = requests.delete(path_to_repo, auth=(admin_username, admin_auth))
+    check_that("The test repo was deleted successfully",
+               response.status_code, equal_to(200))
+    time.sleep(15)
+
+    # Deleting the git repo uploaded via git import in the test suite.
     path_to_git_repo = url + "bin/cpm/nodes/node.json/content/repositories/" + git_import_repo
     lcc.log_info("Test repo node used for git import functionality being deleted at: %s" % path_to_git_repo)
     response_git_delete = requests.delete(path_to_git_repo, auth=(admin_username, admin_auth))

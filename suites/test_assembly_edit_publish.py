@@ -9,6 +9,7 @@ from fixtures import fixture
 from polling2 import poll
 from helpers import utilities
 import json
+# from urllib.parse import urlencode
 
 sys.path.append("..")
 
@@ -27,7 +28,7 @@ class test_assembly_edit_publish:
         self.variant = str(self.variant)
         self.path_for_assembly = utilities.select_nth_item_from_search_results(1, fixture.url, assembly_title_prefix)
 
-        edit_metadata_url = fixture.url + "content/" + self.path_for_assembly + "/en_US/variants/" + \
+        edit_metadata_url = fixture.url + self.path_for_assembly + "/en_US/variants/" + \
                             self.variant + "/draft/metadata"
         lcc.log_info("Edit metadata request for assembly at : %s " % edit_metadata_url)
 
@@ -38,10 +39,12 @@ class test_assembly_edit_publish:
                    "documentUsecase": constants.assembly_documentusecase,
                    "urlFragment": constants.assembly_urlfragment,
                    "searchKeywords": constants.assembly_searchkeywords}
-
+        # payload = urlencode(payload)
+        print("Payload::", payload)
+        # headers = {'content-type': "application/x-www-form-urlencoded"}
         edit_metadata_request = self.api_auth.post(edit_metadata_url, data=payload)
-
-        request_url = fixture.url + "content/" + self.path_for_assembly + ".7.json"
+        print(edit_metadata_request)
+        request_url = fixture.url + self.path_for_assembly + ".7.json"
         time.sleep(10)
 
         #check that metadata has been added successfully.
@@ -67,16 +70,19 @@ class test_assembly_edit_publish:
                    "locale": "en_US",
                    "variant": self.variant
                    }
+        # headers = {'content-type': "application/x-www-form-urlencoded"}
+        # payload = json.dumps(payload)
+        # payload = urlencode(payload)
         print("Payload: ",payload)
-        publish_url = fixture.url + "content/" + self.path_for_assembly
+        publish_url = fixture.url + self.path_for_assembly
         print("\n API end point used for publish request: " + publish_url)
         time.sleep(10)
         publish_request = api_auth.post(publish_url, data=payload)
         print("\n Publish request response: \n" + str(publish_request.content))
+        time.sleep(10)
         check_that("The publish request is successful", publish_request.status_code, equal_to(200))
-        time.sleep(15)
 
-        req = api_auth.get(fixture.url + "content/" + self.path_for_assembly + ".7.json")
+        req = api_auth.get(fixture.url + self.path_for_assembly + ".7.json")
 
         check_that("The status node in variants > variant >: ", req.json()["en_US"]["variants"][self.variant],
                    has_entry("released"), quiet=True)

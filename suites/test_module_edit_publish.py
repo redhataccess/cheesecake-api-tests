@@ -8,7 +8,9 @@ import requests
 from fixtures import fixture
 from polling2 import poll
 from helpers import utilities
-import urllib.parse
+# from urllib.parse import urlencode
+import json
+import time
 
 sys.path.append("..")
 
@@ -27,7 +29,7 @@ class test_module_edit_publish:
     lcc.log_info(str(self.variant))
     self.variant = str(self.variant)
     self.path_for_module = utilities.select_nth_item_from_search_results(0, fixture.url, module_title_prefix)
-    edit_metadata_url = fixture.url + "content/" + self.path_for_module + "/en_US/variants/" +\
+    edit_metadata_url = fixture.url + self.path_for_module + "/en_US/variants/" +\
                         self.variant + "/draft/metadata"
     lcc.log_info("Edit metadata request for module: %s " % edit_metadata_url)
 
@@ -37,12 +39,20 @@ class test_module_edit_publish:
                "documentUsecase": constants.documentUsecase,
                "urlFragment": constants.urlFragment,
                "searchKeywords": constants.searchKeywords}
+    # payload = urlencode(payload)
+    print("PAyload::", payload)
+    # headers = {'content-type': "application/x-www-form-urlencoded"}
     edit_metadata_request = self.api_auth.post(edit_metadata_url, data = payload)
-    self.request_url = fixture.url + "content/" + self.path_for_module + ".7.json"
+    time.sleep(10)
+    print("Response::", edit_metadata_request)
+    self.request_url = fixture.url + self.path_for_module + ".7.json"
     #check that metadata has been added successfully.
     response = api_auth.get(self.request_url)
+    print("Response::",response)
     metadata_response = response.json()["en_US"]["variants"][self.variant]["draft"]["metadata"]
-    check_that("The edit metadata request was successful", edit_metadata_request.status_code, equal_to(200))
+    print("Metadata response::", metadata_response)
+    check_that("The edit metadata request was successful", edit_metadata_request.status_code,
+               any_of(equal_to(200), equal_to(201)))
     check_that("The product version has been updated successfully", metadata_response["productVersion"],
                equal_to(product_id))
     check_that("The document use case has been updated successfully", metadata_response["documentUsecase"],
@@ -52,12 +62,19 @@ class test_module_edit_publish:
   def publish_module(self, api_auth):
     # Get path of the module for which metadata was added
     publish_url = fixture.url + self.path_for_module
+    print("\n API end point used for publish request: " + publish_url)
     payload = {
         ":operation": "pant:publish",
         "locale": "en_US",
         "variant": self.variant
     }
+    # headers = {'content-type': "application/x-www-form-urlencoded"}
+    # payload = json.dumps(payload)
+    # payload = urlencode(payload)
+    print("Payload: ", payload)
+    time.sleep(10)
     publish_module_request = self.api_auth.post(publish_url, data=payload)
+    time.sleep(10)
     check_that("The publish request was successful", publish_module_request.status_code, equal_to(200))
     response = api_auth.get(self.request_url)
     # Check that the node has been marked as released

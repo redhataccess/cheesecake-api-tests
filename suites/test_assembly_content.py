@@ -49,7 +49,8 @@ class test_assembly_content:
       self.path_for_assembly = utilities.select_nth_item_from_search_results(0, fixture.url, assembly_prefix)
       if "/modules" in self.path_for_assembly:
           self.path_for_assembly = utilities.select_nth_item_from_search_results(1, fixture.url, assembly_prefix)
-      res, product_name_uri = utilities.add_metadata(fixture.url, self.path_for_assembly, self.variant, api_auth, setup_test_products, content_type="assembly")
+      res, product_name_uri = utilities.add_metadata(fixture.url, self.path_for_assembly, self.variant, api_auth,
+                                                     setup_test_products, content_type="assembly")
       # print(res.content)
       utilities.publish_content(fixture.url,self.path_for_assembly, self.variant, api_auth)
 
@@ -69,23 +70,30 @@ class test_assembly_content:
                  equal_to("published"))
       check_that("The variant uuid of the assembly", data_from_published_assembly.json()["assembly"]["variant_uuid"],
                  equal_to(assembly_uuid))
-      check_that("The uuid of the assembly", data_from_published_assembly.json()["assembly"]["uuid"], equal_to(assembly_uuid))
+      check_that("The uuid of the assembly", data_from_published_assembly.json()["assembly"]["uuid"],
+                 equal_to(assembly_uuid))
       check_that("The abstract of the assembly", data_from_published_assembly.json()["assembly"]["description"],
-                 is_not_none())
+                 equal_to(constants.assembly_abstract))
       keywords = constants.assembly_searchkeywords.split(',')
       print(keywords)
-      all_of(check_that("Search keywords", data_from_published_assembly.json()["assembly"]["search_keywords"], has_items(keywords)))
-      check_that("The assembly type", data_from_published_assembly.json()["assembly"]["content_type"], equal_to("assembly"))
+      all_of(check_that("Search keywords", data_from_published_assembly.json()["assembly"]["search_keywords"],
+                        has_items(keywords)))
+      check_that("The assembly type", data_from_published_assembly.json()["assembly"]["content_type"],
+                 equal_to("assembly"))
       #date_published and #date_modified test pending
       path = self.path_for_assembly.split("repositories/")[1]
       path = path + "/en_US/variants/" + self.variant
-      check_that("The assembly url fragment", data_from_published_assembly.json()["assembly"]["assembly_url_fragment"], equal_to(path))
+      check_that("The assembly url fragment", data_from_published_assembly.json()["assembly"]["assembly_url_fragment"],
+                 equal_to(path))
       check_that("The view_uri", data_from_published_assembly.json()["assembly"]["view_uri"], equal_to(
           fixture.cp_url + "documentation/en-us/guide/" + product_name_uri + "/" + constants.product_version_uri + "/" + assembly_uuid))
       check_that("The revision_id", data_from_published_assembly.json()["assembly"]["revision_id"], equal_to("released"))
       # print(data_from_published_assembly.json()["assembly"]["products"][0]["product_name"])
-      check_that("The product name", data_from_published_assembly.json()["assembly"]["products"][0]["product_name"], contains_string(constants.product_name))
-      check_that("The product version", data_from_published_assembly.json()["assembly"]["products"][0]["product_version"], equal_to(constants.product_version))
+      check_that("The product name url", data_from_published_assembly.json()["assembly"]["products"][0]["product_url_fragment"],
+                 equal_to(product_name_uri))
+      check_that("The product version",
+                 data_from_published_assembly.json()["assembly"]["products"][0]["product_version"],
+                 equal_to(constants.product_version))
       number_of_modules_included = len(data_from_published_assembly.json()["assembly"]["modules_included"])
       check_that("Number of Modules included", number_of_modules_included, greater_than_or_equal_to(1))
       for i in range(number_of_modules_included):

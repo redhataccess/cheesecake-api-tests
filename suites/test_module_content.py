@@ -50,7 +50,8 @@ class test_module_content:
       self.path_for_module = utilities.select_nth_item_from_search_results(0, fixture.url, module_prefix)
       if "/assemblies" in self.path_for_module:
           self.path_for_module = utilities.select_nth_item_from_search_results(1, fixture.url, module_prefix)
-      res, product_name_uri = utilities.add_metadata(fixture.url, self.path_for_module, self.variant, api_auth, setup_test_products, content_type="module")
+      res, product_name_uri = utilities.add_metadata(fixture.url, self.path_for_module, self.variant, api_auth,
+                                                     setup_test_products, content_type="module")
       # print(res.content)
       utilities.publish_content(fixture.url,self.path_for_module, self.variant, api_auth)
 
@@ -86,8 +87,8 @@ class test_module_content:
           fixture.cp_url + "documentation/en-us/topic/" + product_name_uri + "/" + constants.product_version_uri + "/" + module_uuid))
       check_that("The revision_id", data_from_published_module.json()["module"]["revision_id"], equal_to("released"))
       # print(data_from_published_module.json()["module"]["products"][0]["product_name"])
-      check_that("The product name", data_from_published_module.json()["module"]["products"][0]["product_name"],
-                 contains_string(constants.product_name))
+      check_that("The product name url", data_from_published_module.json()["module"]["products"][0]["product_url_fragment"],
+                 equal_to(product_name_uri))
       check_that("The product version", data_from_published_module.json()["module"]["products"][0]["product_version"],
                  equal_to(constants.product_version))
       print(data_from_published_module.json()["module"]["included_in_guides"])
