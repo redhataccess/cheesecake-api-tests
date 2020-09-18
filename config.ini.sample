@@ -12,20 +12,25 @@ password=<enter admin password required for teardown operations>
 
 [qa]
 base_url=https://qa.example.com/
+cp_url=https://qa.redhat.com/
 
 [stage]
 base_url=https://stage.example.com/
+cp_url=https://stage.redhat.com/
 
 [dev]
 base_url=https://stage.example.com/
+cp_url=https://dev.redhat.com/
 
 [prod]
 base_url=https://prod.example.com/
+cp_url=https://access.redhat.com/
 
 [git_import_pod_details]
 dev=<input url for git import tests>
 qa=<input url for git import tests>
 stage=<input url for git import tests>
+prod=<input url for git import tests>
 
 [proxy]
 proxy_server=<proxy server url>
@@ -35,7 +40,9 @@ test_repo_url=<URL for test repo to be used, this is a required value for the te
 repo_name=<Repository name as mentioned in pantheon2.yml in the above test repo>
 test_repo_branch=<branch of the test repo to clone>
 module_prefix=<Add a prefix text which is present in every module title to be used for search>
+module_content_prefix=<Add a prefix text which is present for a single module title to be used for search>
 assembly_prefix=<Add a prefix text for assemblies separately to search for assembly>
+assembly_content_prefix=<Add a prefix text which is present for a single title to be used for search>
 number_of_modules_uploaded=<number of modules uploaded,eg. 3>
 
 [git_import_test_repo]

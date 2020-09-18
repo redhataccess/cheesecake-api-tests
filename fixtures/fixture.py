@@ -26,15 +26,19 @@ env = os.environ['PANTHEON_ENV']
 if env == "qa":
     url = base.config_reader('qa', 'base_url')
     git_import_server = base.config_reader('git_import_pod_details', 'qa')
+    cp_url = base.config_reader('qa', 'cp_url')
 elif env == "dev":
     url = base.config_reader('dev', 'base_url')
     git_import_server = base.config_reader('git_import_pod_details', 'dev')
+    cp_url = base.config_reader('dev', 'cp_url')
 elif env == "stage":
     url = base.config_reader('stage', 'base_url')
     git_import_server = base.config_reader('git_import_pod_details', 'stage')
+    cp_url = base.config_reader('stage', 'cp_url')
 elif env == "prod":
     url = base.config_reader('prod', 'base_url')
     git_import_server = base.config_reader('git_import_pod_details', 'prod')
+    cp_url = base.config_reader('prod', 'cp_url')
 else:
     raise Exception("Please set the env variable PANTHEON_ENV as dev/qa/stage specifically. "
                     "To run your tests against QA, run `$export PANTHEON_ENV=qa` before you run the tests")
@@ -51,8 +55,9 @@ number_of_modules_uploaded = base.config_reader('test_repo', 'number_of_modules_
 
 # Creating product name and uri with random_string
 random_string = utilities.generate_random_string(4)
+# global product_name
 product_name = constants.product_name + random_string
-global product_name_uri
+# global product_name_uri
 product_name_uri = constants.product_name_uri + random_string
 
 
@@ -86,9 +91,7 @@ def setup_test_repo():
     try:
         logging.info("Using pantheon uploader to push test data to Pantheon...")
         subprocess.check_call(
-            ('python3 ../pantheon.py --user={} --password={} --server={} push'.format(uploader_username,
-                                                                                      uploader_password,
-                                                                                      url)), shell=True)
+            ('python3 ../pantheon.py --user={} --password={} --server={} push'.format(uploader_username, uploader_password, url)), shell=True)
     except subprocess.CalledProcessError as e:
         logging.info(
             "Test setup did not complete successfully, error encountered during 'pantheon push'")
@@ -107,7 +110,7 @@ def setup_test_products():
               "sling:resourceType": "pantheon/product",
               "jcr:primaryType": "pant:product",
               "locale": "en-US",
-              "url": product_name_uri}
+              "urlFragment": product_name_uri}
 
     # Hit the api for create product
     response = requests.post(path_to_product_node, data=create_product_payload, auth=(username, auth))
@@ -120,7 +123,8 @@ def setup_test_products():
 
     create_version_payload = {"name": constants.product_version,
                               "sling:resourceType": "pantheon/productVersion",
-                              "jcr:primaryType": "pant:productVersion"}
+                              "jcr:primaryType": "pant:productVersion",
+                              "urlFragment": constants.product_version_uri}
 
 
     # Hit the api for create version for the above product
@@ -136,7 +140,7 @@ def setup_test_products():
     product_version_id = product_version_id_req.json()["versions"][constants.product_version]["jcr:uuid"]
     lcc.log_info("Fetching product version id of the product created: %s id: %s" % (path_to_product_id,
                                                                                     str(product_version_id)))
-    return product_version_id
+    return product_version_id, product_name_uri
 
 
 @lcc.fixture(names=("api_auth", "auth"), scope="session")
@@ -146,9 +150,9 @@ def setup(setup_test_repo, setup_test_products):
     session.auth = (username, auth)
 
     yield session
-
-    # Deletes the products created using api endpoint
-    lcc.log_info("Deleting test products created as a part of the tests.. ")
+    #
+    # # Deletes the products created using api endpoint
+    # lcc.log_info("Deleting test products created as a part of the tests.. ")
     path_to_new_product_node = url + "bin/cpm/nodes/node.json/content/products/" + product_name_uri
     lcc.log_info("Test Product node being deleted at: %s" % path_to_new_product_node)
     response1 = session.delete(path_to_new_product_node)
@@ -169,7 +173,7 @@ def setup(setup_test_repo, setup_test_products):
                response.status_code, equal_to(200))
     time.sleep(15)
 
-    #Deleting the git repo uploaded via git import in the test suite.
+    # Deleting the git repo uploaded via git import in the test suite.
     path_to_git_repo = url + "bin/cpm/nodes/node.json/content/repositories/" + git_import_repo
     lcc.log_info("Test repo node used for git import functionality being deleted at: %s" % path_to_git_repo)
     response_git_delete = requests.delete(path_to_git_repo, auth=(admin_username, admin_auth))

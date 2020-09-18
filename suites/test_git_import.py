@@ -19,7 +19,7 @@ assembly_title_prefix = base.config_reader('git_import_test_repo', 'assembly_pre
 
 
 
-@lcc.suite(description="Suite: Git import functionality", rank=3)
+@lcc.suite(description="Suite: Git import functionality", rank=6)
 class test_git_import:
   api_auth = lcc.inject_fixture("api_auth")
 
