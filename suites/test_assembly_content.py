@@ -59,6 +59,7 @@ class test_assembly_content:
       print("published assembly url: \n" + published_assembly_url)
       lcc.log_info("Published Assembly api endpoint: %s" % published_assembly_url)
       data_from_published_assembly = api_auth.get(published_assembly_url)
+      print(data_from_published_assembly.content)
       check_that("The /api/assembly/variant.json/<assembly_uuid> endpoint for a published assembly",
                  data_from_published_assembly.status_code, equal_to(200))
 

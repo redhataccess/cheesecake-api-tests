@@ -15,7 +15,7 @@ assembly_urlfragment = "test_assembly_url"
 assembly_searchkeywords = "rhel8,rhel,troubleshoot installation"
 
 #Module metadata:
-module_abstarct = "Abstarct for API test module"
+module_abstarct = "Abstract for API test module"
 
 #Abstarct metadata
 assembly_abstract = "This is test abstract for API test assembly"

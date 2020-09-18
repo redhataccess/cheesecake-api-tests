@@ -17,6 +17,7 @@ module_title_prefix = base.config_reader('test_repo', 'module_prefix')
 module_prefix = base.config_reader('test_repo', 'module_content_prefix')
 repo_name = base.config_reader('test_repo', 'repo_name')
 assembly_title_prefix = base.config_reader('test_repo', 'assembly_prefix')
+assembly_prefix = base.config_reader('test_repo', 'assembly_content_prefix')
 
 
 @lcc.suite(description="Suite: Verify contents of published module", rank=2)
@@ -96,11 +97,11 @@ class test_module_content:
       check_that("Number of guides included in", count, greater_than_or_equal_to(1))
       for i in range(count):
           check_that("Included in guides", data_from_published_module.json()["module"]["included_in_guides"][i]["title"],
-                     contains_string(assembly_title_prefix))
+                     contains_string(assembly_title_prefix) or contains_string(assembly_prefix))
       is_part_of_count = len(data_from_published_module.json()["module"]["isPartOf"])
       check_that("Is part of count", is_part_of_count, greater_than_or_equal_to(1))
       for i in range(is_part_of_count):
           check_that("Is part of", data_from_published_module.json()["module"]["isPartOf"][i]["title"],
-                     contains_string(assembly_title_prefix))
+                     contains_string(assembly_title_prefix) or contains_string(assembly_prefix))
 
 

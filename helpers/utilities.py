@@ -34,7 +34,7 @@ def read_variant_name_from_pantheon2config():
 def select_nth_item_from_search_results(n, url, title_prefix):
     search_request = requests.get(url + "pantheon/internal/modules.json?search=" + title_prefix + "&key=Updated date")
     search_results = search_request.json()
-    # print(str(search_request.content))
+    print(str(search_request.content))
     if int(search_results["size"]) >= n:
         lcc.log_info("Found more than one result for search: %s, will perform tests for %s th result..."
                      %(title_prefix,n))
