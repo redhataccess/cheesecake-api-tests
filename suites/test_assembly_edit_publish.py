@@ -106,8 +106,3 @@ class test_assembly_edit_publish:
                    equal_to("assembly"))
         check_that("The body of the assembly", published_assembly_request.json()["assembly"]["body"], is_not_none())
         #add a check for date_published, search_keywords, etc.
-
-
-
-
-

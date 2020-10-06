@@ -32,19 +32,30 @@ def read_variant_name_from_pantheon2config():
 
 
 def select_nth_item_from_search_results(n, url, title_prefix):
-    search_request = requests.get(url + "pantheon/internal/modules.json?search=" + title_prefix + "&key=Updated date")
+    search_request_url = requests.get(url + "pantheon/internal/modules.json?search=" + title_prefix + "&key=Updated date")
+    search_request = requests.get(search_request_url)
     search_results = search_request.json()
-    print(str(search_request.content))
-    if int(search_results["size"]) >= n:
-        lcc.log_info("Found more than one result for search: %s, will perform tests for %s th result..."
-                     %(title_prefix,n))
-        path_for_nth_module = search_results["results"][n]["pant:transientPath"]
-        path_for_nth_module = "content/" + path_for_nth_module
-        lcc.log_info("Further test operations on: %s " % path_for_nth_module)
-        return path_for_nth_module
+    lcc.log_info(str(search_request.content))
+    if int(search_results["size"]) > 0:
+        lcc.log_info("Number of results for search prefix: %s is > 0" % title_prefix)
+
+        if int(search_results["size"]) >= n:
+            lcc.log_info("Found more than one result for search: %s, will perform tests for %s th result..."
+                         %(title_prefix, n))
+            path_for_nth_module = search_results["results"][n]["pant:transientPath"]
+            path_for_nth_module = "content/" + path_for_nth_module
+            lcc.log_info("Further test operations on: %s " % path_for_nth_module)
+            return path_for_nth_module
+        else:
+            lcc.log_info("no results found for further test operations while searching for text: %s, either Search API"
+                         " is broken or there is no test data" % title_prefix)
+            raise Exception("No search result found while looking for module, either the Search API is broken or"
+                            " there is no test data")
     else:
-        lcc.log_info("no results found for further test operations, either Search API is broken or there is no test data")
-        raise Exception
+        lcc.log_info("no results found for further test operations while searching for text: %s, either Search API"
+                     " is broken or there is no test data" % title_prefix)
+        raise Exception("No search result found while looking for module, either the Search API is broken or "
+                        "there is no test data")
 
 def fetch_uuid_of_assembly(url, assembly_path, variant):
     assembly_path = url + "content/" + assembly_path + ".7.json"
