@@ -32,10 +32,12 @@ def read_variant_name_from_pantheon2config():
 
 
 def select_nth_item_from_search_results(n, url, title_prefix):
-    search_request_url = requests.get(url + "pantheon/internal/modules.json?search=" + title_prefix + "&key=Updated date")
-    search_request = requests.get(search_request_url)
-    search_results = search_request.json()
-    lcc.log_info(str(search_request.content))
+    search_req = url + "pantheon/internal/modules.json?search=" + title_prefix + "&key=Updated date"
+    print(search_req)
+    search_response = requests.get(search_req)
+    # search_response = requests.get(search_request_url)
+    search_results = search_response.json()
+    print("Search response::", str(search_response.content))
     if int(search_results["size"]) > 0:
         lcc.log_info("Number of results for search prefix: %s is > 0" % title_prefix)
 
