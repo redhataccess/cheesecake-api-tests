@@ -44,8 +44,10 @@ class test_assembly_edit_publish:
         # headers = {'content-type': "application/x-www-form-urlencoded"}
         edit_metadata_request = self.api_auth.post(edit_metadata_url, data=payload)
         print(edit_metadata_request)
-        request_url = fixture.url + self.path_for_assembly + ".7.json"
         time.sleep(10)
+        check_that("Edit metadata request to be successful", edit_metadata_request.status_code, equal_to(200))
+        request_url = fixture.url + self.path_for_assembly + ".7.json"
+
 
         #check that metadata has been added successfully.
         response = self.api_auth.get(request_url)
@@ -75,10 +77,10 @@ class test_assembly_edit_publish:
         # payload = urlencode(payload)
         print("Payload: ",payload)
         publish_url = fixture.url + self.path_for_assembly
-        print("\n API end point used for publish request: " + publish_url)
-        time.sleep(10)
+        lcc.log_info("API end point used for publish request: %s" % publish_url)
+        time.sleep(15)
         publish_request = api_auth.post(publish_url, data=payload)
-        print("\n Publish request response: \n" + str(publish_request.content))
+        lcc.log_info("Publish request response: \n %s" % str(publish_request.content))
         time.sleep(10)
         check_that("The publish request is successful", publish_request.status_code, equal_to(200))
 

@@ -69,8 +69,8 @@ class test_assembly_content:
                  contains_string(assembly_prefix))
       check_that("The status of the assembly ", data_from_published_assembly.json()["assembly"]["status"],
                  equal_to("published"))
-      check_that("The variant uuid of the assembly", data_from_published_assembly.json()["assembly"]["variant_uuid"],
-                 equal_to(assembly_uuid))
+      # check_that("The uuid of the assembly", data_from_published_assembly.json()["assembly"]["uuid"],
+      #            equal_to(assembly_uuid))
       check_that("The uuid of the assembly", data_from_published_assembly.json()["assembly"]["uuid"],
                  equal_to(assembly_uuid))
       check_that("The abstract of the assembly", data_from_published_assembly.json()["assembly"]["description"],
@@ -100,14 +100,12 @@ class test_assembly_content:
       for i in range(number_of_modules_included):
           check_that("Modules included",
                      data_from_published_assembly.json()["assembly"]["modules_included"][i],
-                     all_of(has_entry("module_title"), has_entry("module_uuid"), has_entry("module_url"),
-                            has_entry("module_variant_uuid"), has_entry("module_level_offset")))
+                     all_of(has_entry("canonical_uuid"), has_entry("level_offset"), has_entry("module_uuid"),
+                            has_entry("title"), has_entry("url")))
       number_of_modules_hasPart = len(data_from_published_assembly.json()["assembly"]["hasPart"])
       check_that("Number of Modules in hasPart", number_of_modules_hasPart, greater_than_or_equal_to(1))
       for i in range(number_of_modules_hasPart):
           check_that("Modules hasPart",
                      data_from_published_assembly.json()["assembly"]["hasPart"][i],
-                     all_of(has_entry("module_title"), has_entry("module_uuid"), has_entry("module_url"),
-                            has_entry("module_variant_uuid"), has_entry("module_level_offset")))
-
-
+                     all_of(has_entry("canonical_uuid"), has_entry("level_offset"), has_entry("module_uuid"),
+                            has_entry("title"), has_entry("url")))

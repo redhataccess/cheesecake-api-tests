@@ -96,8 +96,3 @@ class test_module_edit_publish:
     check_that("The status of the module ", data_from_published_module.json()["module"]["status"],
                equal_to("published"))
     check_that("The body of the module", data_from_published_module.json()["module"]["body"], is_not_none())
-
-
-
-
-
