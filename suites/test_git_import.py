@@ -23,6 +23,7 @@ assembly_title_prefix = base.config_reader('git_import_test_repo', 'assembly_pre
 class test_git_import:
   api_auth = lcc.inject_fixture("api_auth")
 
+  @lcc.disabled()
   @lcc.test("Verify that git import API is able to git import modules successfully")
   def git_import_api(self):
     lcc.log_info("Checking for post request to git import functionality...")

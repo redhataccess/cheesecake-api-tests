@@ -33,11 +33,11 @@ def read_variant_name_from_pantheon2config():
 
 def select_nth_item_from_search_results(n, url, title_prefix):
     search_req = url + "pantheon/internal/modules.json?search=" + title_prefix + "&key=Updated date"
-    print(search_req)
+    lcc.log_info("Searching text using the endpoint: %s" % search_req)
     search_response = requests.get(search_req)
     # search_response = requests.get(search_request_url)
     search_results = search_response.json()
-    print("Search response::", str(search_response.content))
+    lcc.log_info("Search response:: %s" % search_response.content)
     if int(search_results["size"]) > 0:
         lcc.log_info("Number of results for search prefix: %s is > 0" % title_prefix)
 
@@ -91,7 +91,7 @@ def add_metadata(url, path, variant, api_auth, setup_test_products, content_type
         searchKeywords = constants.assembly_searchkeywords
     edit_metadata_url = url + path + "/en_US/variants/" + variant + "/draft/metadata"
     print("Data Edit metadata request::", edit_metadata_url)
-    lcc.log_info("Data Edit metadata request: %s " % edit_metadata_url)
+    lcc.log_info("Editing metadata for: %s " % edit_metadata_url)
     # Fetch the product id from fixtures, ta test product and version was created as setup step.
     product_id, product_name_uri = setup_test_products
     print("Data product id::", product_id)
@@ -105,12 +105,13 @@ def add_metadata(url, path, variant, api_auth, setup_test_products, content_type
     response = api_auth.post(edit_metadata_url, data=payload)
     time.sleep(10)
     print("Response::",response)
+
     return response, product_name_uri
 
 def publish_content(url, path, variant, api_auth):
     time.sleep(10)
     publish_url = url + path
-    print("Request: ",publish_url)
+    lcc.log_info("Publishing the path: %s" % publish_url)
     payload = {
         ":operation": "pant:publish",
         "locale": "en_US",
