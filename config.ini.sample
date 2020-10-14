@@ -12,19 +12,23 @@ password=<enter admin password required for teardown operations>
 
 [qa]
 base_url=https://qa.example.com/
-cp_url=https://qa.redhat.com/
+cp_url=https://cp.example.com/
+solr_url=https://solr.example.com/
 
 [stage]
 base_url=https://stage.example.com/
-cp_url=https://stage.redhat.com/
+cp_url=https://cp.example.com/
+solr_url=https://solr.example.com/
 
 [dev]
 base_url=https://stage.example.com/
-cp_url=https://dev.redhat.com/
+cp_url=https://cp.example.com/
+solr_url=https://solr.example.com/
 
 [prod]
 base_url=https://prod.example.com/
-cp_url=https://access.redhat.com/
+cp_url=https://cp.example.com/
+solr_url=https://solr.example.com/
 
 [git_import_pod_details]
 dev=<input url for git import tests>

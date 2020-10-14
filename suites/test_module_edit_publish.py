@@ -45,7 +45,7 @@ class test_module_edit_publish:
     edit_metadata_request = self.api_auth.post(edit_metadata_url, data = payload)
     time.sleep(10)
     print("Response::", edit_metadata_request)
-    self.request_url = fixture.url + self.path_for_module + ".7.json"
+    self.request_url = fixture.url + self.path_for_module + ".10.json"
     #check that metadata has been added successfully.
     response = api_auth.get(self.request_url)
     print("Response::",response)
@@ -81,8 +81,8 @@ class test_module_edit_publish:
     check_that("The published module now has a 'released' node", response.json()["en_US"]["variants"][self.variant],
                contains_string("released"))
 
-    module_uuid = utilities.fetch_uuid(fixture.url, self.path_for_module, self.variant)
-    published_module_url = fixture.url + "api/module/variant.json/" + module_uuid
+    self.module_uuid = utilities.fetch_uuid(fixture.url, self.path_for_module, self.variant)
+    published_module_url = fixture.url + "api/module/variant.json/" + self.module_uuid
     print("published module url: \n" + published_module_url)
     lcc.log_info("Published Module api endpoint: %s" % published_module_url)
     data_from_published_module = api_auth.get(published_module_url)
@@ -96,3 +96,68 @@ class test_module_edit_publish:
     check_that("The status of the module ", data_from_published_module.json()["module"]["status"],
                equal_to("published"))
     check_that("The body of the module", data_from_published_module.json()["module"]["body"], is_not_none())
+
+  @lcc.test("Verify that acknowledgement was received from Hydra")
+  def ack_status_check(self, api_auth):
+    #self.request_module_url = fixture.url + self.path_for_module + ".10.json"
+    time.sleep(10)
+    response = api_auth.get(self.request_url)
+    time.sleep(10)
+    response = api_auth.get(self.request_url)
+    lcc.log_info("Checking for ack_status at url: %s" % str(self.request_url))
+    check_that("The published module now has a released node with ack_status node ",
+               response.json()["en_US"]["variants"][self.variant]["released"], has_entry("ack_status"))
+    lcc.log_info("Ack status node response: %s" % str(response.json()["en_US"]["variants"][self.variant]["released"]["ack_status"]))
+    check_that("The published module has a successful message from Hydra",
+               response.json()["en_US"]["variants"][self.variant]["released"]["ack_status"]["pant:message"],
+               equal_to("Solr call for index was successful"))
+
+    check_that("The published module has a successful ACK from Hydra",
+               response.json()["en_US"]["variants"][self.variant]["released"]["ack_status"]["pant:status"],
+               equal_to("SUCCESSFUL"))
+
+
+  @lcc.test("Verify that the module was indexed in Solr in docv2 collection")
+  def verify_solr_indexing(self):
+    # Reusing the module id fetched in the above test
+    time.sleep(15)
+    solr_request_url = fixture.solr_url + "solr/docv2/select?indent=on&q=id:" + self.module_uuid + "&wt=json"
+    lcc.log_info("Checking docv2 collection in Solr: %s" % solr_request_url)
+    solr_request = requests.get(solr_request_url)
+    solr_request_json = solr_request.json()
+    lcc.log_info("Response from Solr: %s " % str(solr_request_json))
+    check_that("The module is indexed in docv2 collection in Solr", solr_request_json["response"]["numFound"], equal_to(1))
+    check_that("The content type", solr_request_json["response"]["docs"][0]["content_type"][0], equal_to("module"))
+
+  @lcc.test("Verify that the module is successfully unpublished, Hydra sends an ACK")
+  def unpublish_module(self, api_auth):
+    unpublish_url = fixture.url + self.path_for_module
+    lcc.log_info("Unpublishing the module: %s" % unpublish_url)
+    payload = {
+      ":operation": "pant:unpublish",
+      "locale": "en_US",
+      "variant": self.variant
+    }
+    unpublish_module_request = self.api_auth.post(unpublish_url, data=payload)
+    time.sleep(12)
+    check_that("Unpublish request status code", unpublish_module_request.status_code, equal_to(200))
+    response = api_auth.get(self.request_url)
+    time.sleep(5)
+    response = api_auth.get(self.request_url)
+    lcc.log_info("Checking for ack_status at url after unpublish: %s" % str(self.request_url))
+    check_that("The unpublished module now has a draft node with ack_status node ",
+               response.json()["en_US"]["variants"][self.variant]["draft"], has_entry("ack_status"))
+    lcc.log_info("Ack status node response: %s" % str(response.json()["en_US"]["variants"][self.variant]["draft"]["ack_status"]))
+    # this is a place holder check
+    check_that("The unpublished module has a successful message from Hydra",
+               response.json()["en_US"]["variants"][self.variant]["draft"]["ack_status"]["pant:message"],
+               equal_to("Solr call for delete was successful"))
+
+    check_that("The unpublished module has a successful ACK from Hydra",
+               response.json()["en_US"]["variants"][self.variant]["draft"]["ack_status"]["pant:status"],
+               equal_to("SUCCESSFUL"))
+
+
+
+
+

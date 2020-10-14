@@ -87,7 +87,7 @@ class test_assembly_content:
       check_that("The assembly url fragment", data_from_published_assembly.json()["assembly"]["assembly_url_fragment"],
                  equal_to(path))
       check_that("The view_uri", data_from_published_assembly.json()["assembly"]["view_uri"], equal_to(
-          fixture.cp_url + "documentation/en-us/guide/" + product_name_uri + "/" + constants.product_version_uri + "/" + assembly_uuid))
+          fixture.cp_url + "documentation/en-us/" + product_name_uri + "/" + constants.product_version_uri + "/guide/" + assembly_uuid))
       check_that("The revision_id", data_from_published_assembly.json()["assembly"]["revision_id"], equal_to("released"))
       # print(data_from_published_assembly.json()["assembly"]["products"][0]["product_name"])
       check_that("The product name url", data_from_published_assembly.json()["assembly"]["products"][0]["product_url_fragment"],
