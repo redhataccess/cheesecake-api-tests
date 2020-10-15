@@ -89,9 +89,9 @@ class test_assembly_edit_publish:
         check_that("The status node in variants > variant >: ", req.json()["en_US"]["variants"][self.variant],
                    has_entry("released"), quiet=True)
 
-        assembly_uuid = utilities.fetch_uuid(fixture.url, self.path_for_assembly, self.variant)
+        self.assembly_uuid = utilities.fetch_uuid(fixture.url, self.path_for_assembly, self.variant)
 
-        published_assembly_url = fixture.url + "api/assembly/variant.json/" + assembly_uuid
+        published_assembly_url = fixture.url + "api/assembly/variant.json/" + self.assembly_uuid
         print("published assembly url: \n" + published_assembly_url)
         lcc.log_info("Published Assembly api endpoint: %s" % published_assembly_url)
         published_assembly_request = api_auth.get(published_assembly_url)
@@ -108,3 +108,65 @@ class test_assembly_edit_publish:
                    equal_to("assembly"))
         check_that("The body of the assembly", published_assembly_request.json()["assembly"]["body"], is_not_none())
         #add a check for date_published, search_keywords, etc.
+
+    @lcc.test("Verify that acknowledgement was received from Hydra on publishing assembly")
+    def ack_status_check(self, api_auth):
+      self.request_url = fixture.url + self.path_for_assembly + ".10.json"
+      response  = api_auth.get(self.request_url)
+      time.sleep(10)
+      #calling the get request twice
+      response = api_auth.get(self.request_url)
+      lcc.log_info("Checking for ack_status at url: %s" % str(self.request_url))
+      check_that("The published assembly now has a released node with ack_status node ",
+                 response.json()["en_US"]["variants"][self.variant]["released"], has_entry("ack_status"))
+      lcc.log_info("Ack status node response: %s" % str(
+        response.json()["en_US"]["variants"][self.variant]["released"]["ack_status"]))
+      check_that("The published assembly has a successful message from Hydra",
+                 response.json()["en_US"]["variants"][self.variant]["released"]["ack_status"]["pant:message"],
+                 equal_to("Solr call for index was successful"))
+
+      check_that("The published assembly has a successful ACK from Hydra",
+                 response.json()["en_US"]["variants"][self.variant]["released"]["ack_status"]["pant:status"],
+                 equal_to("SUCCESSFUL"))
+
+    @lcc.test("Verify that the assembly was indexed in Solr in docv2 collection")
+    def verify_solr_indexing_assembly(self):
+      # Reusing the module id fetched in the above test
+      time.sleep(15)
+      solr_request_url = fixture.solr_url + "solr/docv2/select?indent=on&q=id:" + self.assembly_uuid + "&wt=json"
+      lcc.log_info("Checking docv2 collection in Solr: %s" % solr_request_url)
+      solr_request = requests.get(solr_request_url)
+      solr_request_json = solr_request.json()
+      lcc.log_info("Response from Solr: %s " % str(solr_request_json))
+      check_that("The assembly is indexed in docv2 collection in Solr", solr_request_json["response"]["numFound"],
+                 equal_to(1))
+      check_that("The content type", solr_request_json["response"]["docs"][0]["content_type"][0], equal_to("assembly"))
+
+    @lcc.test("Verify that the assembly is successfully unpublished, Hydra sends an ACK")
+    def unpublish_module(self, api_auth):
+      unpublish_url = fixture.url + self.path_for_assembly
+      lcc.log_info("Unpublishing the assembly: %s" % unpublish_url)
+      payload = {
+        ":operation": "pant:unpublish",
+        "locale": "en_US",
+        "variant": self.variant
+      }
+      unpublish_assembly_request = self.api_auth.post(unpublish_url, data=payload)
+      time.sleep(12)
+      check_that("Unpublish request status code", unpublish_assembly_request.status_code, equal_to(200))
+      response = api_auth.get(self.request_url)
+      time.sleep(10)
+      response = api_auth.get(self.request_url)
+      lcc.log_info("Checking for ack_status at url after unpublish: %s" % str(self.request_url))
+      check_that("The unpublished assembly now has a draft node with ack_status node ",
+                 response.json()["en_US"]["variants"][self.variant]["draft"], has_entry("ack_status"))
+      lcc.log_info(
+        "Ack status node response: %s" % str(response.json()["en_US"]["variants"][self.variant]["draft"]["ack_status"]))
+      # this is a place holder check
+      check_that("The unpublished assembly has a successful message from Hydra",
+                 response.json()["en_US"]["variants"][self.variant]["draft"]["ack_status"]["pant:message"],
+                 equal_to("Solr call for delete was successful"))
+
+      check_that("The unpublished assembly has a successful ACK from Hydra",
+                 response.json()["en_US"]["variants"][self.variant]["draft"]["ack_status"]["pant:status"],
+                 equal_to("SUCCESSFUL"))

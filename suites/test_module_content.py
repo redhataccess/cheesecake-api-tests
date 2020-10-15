@@ -94,7 +94,8 @@ class test_module_content:
       check_that("The module url fragment", data_from_published_module.json()["module"]["module_url_fragment"],
                  equal_to(path))
       check_that("The view_uri", data_from_published_module.json()["module"]["view_uri"], equal_to(
-          fixture.cp_url + "documentation/en-us/topic/" + product_name_uri + "/" + constants.product_version_uri + "/" + module_uuid))
+          fixture.cp_url + "documentation/en-us/" + product_name_uri + "/" + constants.product_version_uri + "/topic/" + module_uuid))
+
       check_that("The revision_id", data_from_published_module.json()["module"]["revision_id"], equal_to("released"))
       # print(data_from_published_module.json()["module"]["products"][0]["product_name"])
       check_that("The product name url", data_from_published_module.json()["module"]["products"][0]["product_url_fragment"],
