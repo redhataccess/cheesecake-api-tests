@@ -68,9 +68,7 @@ class test_module_edit_publish:
         "locale": "en_US",
         "variant": self.variant
     }
-    # headers = {'content-type': "application/x-www-form-urlencoded"}
-    # payload = json.dumps(payload)
-    # payload = urlencode(payload)
+
     print("Payload: ", payload)
     time.sleep(10)
     publish_module_request = self.api_auth.post(publish_url, data=payload)
@@ -129,6 +127,21 @@ class test_module_edit_publish:
     check_that("The module is indexed in docv2 collection in Solr", solr_request_json["response"]["numFound"], equal_to(1))
     check_that("The content type", solr_request_json["response"]["docs"][0]["content_type"][0], equal_to("module"))
 
+  @lcc.test("Verify if the module is available for search in access collection")
+  def verify_solr_access_collection_module(self):
+    time.sleep(40)
+    solr_request_url = fixture.solr_url + "solr/access/select?indent=on&q=id:" + self.module_uuid + "&wt=json"
+    lcc.log_info("Checking access collection in Solr: %s" % solr_request_url)
+    solr_request = requests.get(solr_request_url)
+    time.sleep(10)
+    solr_request = requests.get(solr_request_url)
+    solr_request_json = solr_request.json()
+    lcc.log_info("Response from Solr: %s " % str(solr_request_json))
+    check_that("The module is indexed in access collection in Solr", solr_request_json["response"]["numFound"],
+               equal_to(1))
+    # add more checks here.
+    check_that("The content type source ", solr_request_json["response"]["docs"][0]["source"], equal_to("module"))
+
   @lcc.test("Verify that the module is successfully unpublished, Hydra sends an ACK")
   def unpublish_module(self, api_auth):
     unpublish_url = fixture.url + self.path_for_module
@@ -139,10 +152,10 @@ class test_module_edit_publish:
       "variant": self.variant
     }
     unpublish_module_request = self.api_auth.post(unpublish_url, data=payload)
-    time.sleep(12)
+    time.sleep(15)
     check_that("Unpublish request status code", unpublish_module_request.status_code, equal_to(200))
     response = api_auth.get(self.request_url)
-    time.sleep(5)
+    time.sleep(10)
     response = api_auth.get(self.request_url)
     lcc.log_info("Checking for ack_status at url after unpublish: %s" % str(self.request_url))
     check_that("The unpublished module now has a draft node with ack_status node ",
@@ -157,7 +170,23 @@ class test_module_edit_publish:
                response.json()["en_US"]["variants"][self.variant]["draft"]["ack_status"]["pant:status"],
                equal_to("SUCCESSFUL"))
 
+  @lcc.test("Verify if the module is successfully removed from docv2 and Solr collection")
+  def removed_from_solr(self):
+    time.sleep(20)
+    solr_request_url = fixture.solr_url + "solr/docv2/select?indent=on&q=id:" + self.module_uuid + "&wt=json"
+    lcc.log_info("Checking docv2 collection in Solr: %s" % solr_request_url)
+    solr_request = requests.get(solr_request_url)
+    solr_request_json = solr_request.json()
+    lcc.log_info("Response from Solr: %s " % str(solr_request_json))
+    check_that("The module is removed from docv2 collection in Solr", solr_request_json["response"]["numFound"],
+               equal_to(0))
 
-
-
-
+    lcc.log_info("Checking if the assembly is removed from search results, access collection")
+    time.sleep(20)
+    solr_request_url = fixture.solr_url + "solr/access/select?indent=on&q=id:" + self.module_uuid + "&wt=json"
+    lcc.log_info("Checking access collection in Solr: %s" % solr_request_url)
+    solr_request = requests.get(solr_request_url)
+    solr_request_json = solr_request.json()
+    lcc.log_info("Response from Solr: %s " % str(solr_request_json))
+    check_that("The module is removed from access collection in Solr", solr_request_json["response"]["numFound"],
+               equal_to(0))
