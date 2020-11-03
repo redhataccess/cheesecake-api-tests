@@ -145,7 +145,7 @@ class test_assembly_edit_publish:
       check_that("The content type", solr_request_json["response"]["docs"][0]["content_type"][0], equal_to("assembly"))
       check_that("The uri", solr_request_json["response"]["docs"][0]["uri"], equal_to(self.assembly_uuid))
 
-
+    @lcc.disabled()
     @lcc.test("Verify if the assembly is available for search in access collection")
     def verify_solr_access_collection_assembly(self):
       time.sleep(40)
@@ -190,17 +190,22 @@ class test_assembly_edit_publish:
                  response.json()["en_US"]["variants"][self.variant]["draft"]["ack_status"]["pant:status"],
                  equal_to("SUCCESSFUL"))
 
-    @lcc.test("Verify if the assembly is successfully removed from docv2 and Solr collection")
-    def removed_from_solr(self):
+    @lcc.test("Verify if the assembly is successfully removed from docv2 collection")
+    def removed_from_docv2_Solr(self):
       time.sleep(15)
       solr_request_url = fixture.solr_url + "solr/docv2/select?indent=on&q=id:" + self.assembly_uuid + "&wt=json"
       lcc.log_info("Checking docv2 collection in Solr: %s" % solr_request_url)
+      solr_request = requests.get(solr_request_url)
+      time.sleep(5)
       solr_request = requests.get(solr_request_url)
       solr_request_json = solr_request.json()
       lcc.log_info("Response from Solr: %s " % str(solr_request_json))
       check_that("The assembly is removed from docv2 collection in Solr", solr_request_json["response"]["numFound"],
                  equal_to(0))
 
+    @lcc.disabled()
+    @lcc.test("Verify is the assembly is successfully removed from access collection in Solr")
+    def removed_from_access_Solr(self):
       lcc.log_info("Checking if the assembly is removed from search results, access collection")
       time.sleep(20)
       solr_request_url = fixture.solr_url + "solr/access/select?indent=on&q=id:" + self.assembly_uuid + "&wt=json"

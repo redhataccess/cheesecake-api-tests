@@ -127,6 +127,7 @@ class test_module_edit_publish:
     check_that("The module is indexed in docv2 collection in Solr", solr_request_json["response"]["numFound"], equal_to(1))
     check_that("The content type", solr_request_json["response"]["docs"][0]["content_type"][0], equal_to("module"))
 
+  @lcc.disabled()
   @lcc.test("Verify if the module is available for search in access collection")
   def verify_solr_access_collection_module(self):
     time.sleep(40)
@@ -170,7 +171,7 @@ class test_module_edit_publish:
                response.json()["en_US"]["variants"][self.variant]["draft"]["ack_status"]["pant:status"],
                equal_to("SUCCESSFUL"))
 
-  @lcc.test("Verify if the module is successfully removed from docv2 and Solr collection")
+  @lcc.test("Verify if the module is successfully removed from docv2 collection in Solr")
   def removed_from_solr(self):
     time.sleep(20)
     solr_request_url = fixture.solr_url + "solr/docv2/select?indent=on&q=id:" + self.module_uuid + "&wt=json"
@@ -181,7 +182,10 @@ class test_module_edit_publish:
     check_that("The module is removed from docv2 collection in Solr", solr_request_json["response"]["numFound"],
                equal_to(0))
 
-    lcc.log_info("Checking if the assembly is removed from search results, access collection")
+  @lcc.disabled()
+  @lcc.test("Verify if the module is successfully removed from access collection in Solr")
+  def removed_from_access_Solr(self):
+    lcc.log_info("Checking if the module is removed from search results, access collection")
     time.sleep(20)
     solr_request_url = fixture.solr_url + "solr/access/select?indent=on&q=id:" + self.module_uuid + "&wt=json"
     lcc.log_info("Checking access collection in Solr: %s" % solr_request_url)
