@@ -121,6 +121,15 @@ def setup_test_products():
     response = requests.post(path_to_product_node, data=create_product_payload, auth=(username, auth))
     check_that("The Product was created successfully",
                response.status_code, any_of(equal_to(201), equal_to(200)))
+
+    #Hit the api to get id of created product
+    path_to_product_node_id = path_to_product_node + ".json"
+    product_id_req = requests.get(path_to_product_node_id)
+    check_that("%s API works as expected" % path_to_product_node_id, response.status_code, any_of(equal_to(201), equal_to(200)))
+    product_id = product_id_req.json()["jcr:uuid"]
+    lcc.log_info("Fetching product id of the product created: %s id: %s" % (path_to_product_node_id,
+                                                                                    str(product_id)))
+
     lcc.log_info("Creating version for the above product")
     time.sleep(5)
     path_to_version = path_to_product_node + "/versions/{}" .format(constants.product_version)
@@ -139,9 +148,11 @@ def setup_test_products():
     time.sleep(5)
     path_to_product_id = path_to_product_node + ".2.json"
     product_version_id_req = requests.get(path_to_product_id)
+    check_that("%s API works as expected" % path_to_product_id, response.status_code, any_of(equal_to(201), equal_to(200)))
     print(product_version_id_req.json())
 
     print(path_to_product_id)
+    # Hit the api to get id of product version created
     product_version_id = product_version_id_req.json()["versions"][constants.product_version]["jcr:uuid"]
     lcc.log_info("Fetching product version id of the product created: %s id: %s" % (path_to_product_id,
                                                                                     str(product_version_id)))
