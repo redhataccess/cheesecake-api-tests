@@ -178,10 +178,12 @@ def setup(setup_test_repo, setup_test_products):
                response.status_code, equal_to(200))
     time.sleep(15)
 
-    # Deleting the git repo uploaded via git import in the test suite.
-    path_to_git_repo = url + "bin/cpm/nodes/node.json/content/repositories/" + git_import_repo
-    lcc.log_info("Test repo node used for git import functionality being deleted at: %s" % path_to_git_repo)
-    response_git_delete = requests.delete(path_to_git_repo, auth=(admin_username, admin_auth))
-    print(str(response_git_delete.content))
-    check_that(
-        "The git import test repo was deleted successfully from backend", response_git_delete.status_code, equal_to(200))
+
+    # Commenting out this section until the git import test is disabled
+    # # Deleting the git repo uploaded via git import in the test suite.
+    # path_to_git_repo = url + "bin/cpm/nodes/node.json/content/repositories/" + git_import_repo
+    # lcc.log_info("Test repo node used for git import functionality being deleted at: %s" % path_to_git_repo)
+    # response_git_delete = requests.delete(path_to_git_repo, auth=(admin_username, admin_auth))
+    # print(str(response_git_delete.content))
+    # check_that(
+    #     "The git import test repo was deleted successfully from backend", response_git_delete.status_code, equal_to(200))
