@@ -23,7 +23,7 @@ assembly_title_prefix = base.config_reader('git_import_test_repo', 'assembly_pre
 class test_git_import:
   api_auth = lcc.inject_fixture("api_auth")
 
-  @lcc.disabled()
+  #@lcc.disabled()
   @lcc.test("Verify that git import API is able to git import modules successfully")
   def git_import_api(self):
     lcc.log_info("Checking for post request to git import functionality...")
@@ -85,3 +85,13 @@ class test_git_import:
                                                                                   str(len(imported_modules_array))))
     check_that("Count of modules uploaded using git import", len(imported_modules_array),
                greater_than_or_equal_to(int(number_of_modules)))
+
+  def teardown_suite(self):
+    # Deleting the git repo uploaded via git import in the test suite.
+    lcc.log_info("Deleting the git repo imported...")
+    path_to_git_repo = fixture.url + "bin/cpm/nodes/node.json/content/repositories/" + git_import_repo_Name
+    lcc.log_info("Test repo node used for git import functionality being deleted at: %s" % path_to_git_repo)
+    response_git_delete = requests.delete(path_to_git_repo, auth=(fixture.admin_username, fixture.admin_auth))
+    print(str(response_git_delete.content))
+    check_that("The git import test repo was deleted successfully from backend", response_git_delete.status_code,
+               equal_to(200))
