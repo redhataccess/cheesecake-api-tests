@@ -126,6 +126,20 @@ def publish_content(url, path, variant, api_auth):
     print("Response:", response)
     return response
 
+def unpublish_content(url, path, variant, api_auth):
+    time.sleep(10)
+    unpublish_url = url + path
+    lcc.log_info("Unpublishing the document at path: %s" %unpublish_url)
+    payload = {
+      ":operation": "pant:unpublish",
+      "locale": "en_US",
+      "variant": variant
+    }
+    response = api_auth.post(unpublish_url, data=payload)
+    time.sleep(10)
+    print("Response:", response)
+    return response
+
 
 
 
