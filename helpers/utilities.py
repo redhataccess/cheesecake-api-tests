@@ -90,7 +90,6 @@ def add_metadata(url, path, variant, api_auth, setup_test_products, content_type
         urlFragment = constants.assembly_urlfragment
         searchKeywords = constants.assembly_searchkeywords
     edit_metadata_url = url + path + "/en_US/variants/" + variant + "/draft/metadata"
-    print("Data Edit metadata request::", edit_metadata_url)
     lcc.log_info("Editing metadata for: %s " % edit_metadata_url)
     # Fetch the product id from fixtures, ta test product and version was created as setup step.
     product_id, product_name_uri = setup_test_products
