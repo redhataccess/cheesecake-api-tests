@@ -90,7 +90,6 @@ def add_metadata(url, path, variant, api_auth, setup_test_products, content_type
         urlFragment = constants.assembly_urlfragment
         searchKeywords = constants.assembly_searchkeywords
     edit_metadata_url = url + path + "/en_US/variants/" + variant + "/draft/metadata"
-    print("Data Edit metadata request::", edit_metadata_url)
     lcc.log_info("Editing metadata for: %s " % edit_metadata_url)
     # Fetch the product id from fixtures, ta test product and version was created as setup step.
     product_id, product_name_uri = setup_test_products
@@ -122,6 +121,20 @@ def publish_content(url, path, variant, api_auth):
     # payload = urlencode(payload)
     print("Payload: ",payload)
     response = api_auth.post(publish_url, data=payload)
+    time.sleep(10)
+    print("Response:", response)
+    return response
+
+def unpublish_content(url, path, variant, api_auth):
+    time.sleep(10)
+    unpublish_url = url + path
+    lcc.log_info("Unpublishing the document at path: %s" %unpublish_url)
+    payload = {
+      ":operation": "pant:unpublish",
+      "locale": "en_US",
+      "variant": variant
+    }
+    response = api_auth.post(unpublish_url, data=payload)
     time.sleep(10)
     print("Response:", response)
     return response
