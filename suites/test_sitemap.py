@@ -62,25 +62,24 @@ class test_sitemap:
         # Verify that assembly sitemap response contains recently published assembly url
         check_that("Assembly Sitemap response at endpoint: %s" % req, response.text, contains_string(url_loc))
 
-        xmlDict = {}
+        xml_dict = {}
         root = ET.fromstring(response.content)
-        for child in root.iter('*'):
-            print(child.tag)
+        lcc.log_info("Creating a dict for the sitemap endpoint responses for verification...")
+
         for sitemap in root:
             children = sitemap.getchildren()
-            print(children)
-            xmlDict[children[0].text] = children[1].text
+            xml_dict[children[0].text] = children[1].text
+
+        print(str(xml_dict))
 
         # Extract published date for recent assembly from the sitemap
-        publish_date = xmlDict[url_loc]
-        print(publish_date)
+        publish_date = xml_dict[url_loc]
+        lcc.log_info("Extracting the publish date for %s as %s" % (url_loc, publish_date))
         date = publish_date.split("T")
 
         # Verify that published date is same as current date
-        check_that("Published date",date[0], equal_to(str(self.now.date())))
-        # temp = date[1].split(".")
-        # time = temp[0]
-        # t=time.split(":")
+        check_that("Published date", date[0], equal_to(str(self.now.date())))
+
         t = date[1].split(".")[0].split(":")
         hour = t[0]
         min = t[1]
@@ -108,21 +107,25 @@ class test_sitemap:
         response = requests.get(req)
         url_loc = fixture.cp_url + "documentation/en-us/" + self.product_name_uri + "/" + constants.product_version_uri + "/topic/" + self.module_uuid
         check_that("Module Sitemap response at endpoint: %s" % req, response.text, contains_string(url_loc))
-        xmlDict = {}
+
+        xml_dict = {}
         root = ET.fromstring(response.content)
-        for child in root.iter('*'):
-            print(child.tag)
+        lcc.log_info("Creating a dict for the sitemap endpoint responses for verification...")
+
         for sitemap in root:
             children = sitemap.getchildren()
-            xmlDict[children[0].text] = children[1].text
-        publish_date = xmlDict[url_loc]
-        print(publish_date)
+            xml_dict[children[0].text] = children[1].text
+
+        print(str(xml_dict))
+
+        # Extract published date for recent assembly from the sitemap
+        publish_date = xml_dict[url_loc]
+        lcc.log_info("Extracting the publish date for %s as %s" % (url_loc, publish_date))
         date = publish_date.split("T")
+
         # Verify that published date is same as current date
         check_that("Published date", date[0], equal_to(str(self.now.date())))
-        # temp = date[1].split(".")
-        # time = temp[0]
-        # t = time.split(":")
+
         t = date[1].split(".")[0].split(":")
         hour = t[0]
         min = t[1]
@@ -134,6 +137,7 @@ class test_sitemap:
                           is_between(self.now_min_minus_five, self.now_min_plus_five)))
 
         lcc.log_info("Verifying if unpublishing a module removes it from the sitemap.xml... ")
+
         # Unpublishing the module
         res = utilities.unpublish_content(fixture.url, self.module_path, self.variant, self.api_auth)
         draft = requests.get(fixture.url + self.module_path + "/en_US/variants/" + self.variant + ".10.json")
