@@ -84,9 +84,10 @@ class test_sitemap:
         hour = t[0]
         min = t[1]
         sec = t[2]
+        lcc.log_info("Time now: %s" % str(self.now.time()))
         lcc.log_info("Published time to match: %s " % str(t))
 
-        # Verify that assembly publish time is withing current time range
+        # Verify that assembly publish time is within current time range
         all_of(check_that("Published time (Hour)", int(hour), is_between(self.now_hour, self.now_hour_plus_one)),
         check_that("Published time (Min)", int(min), is_between(self.now_min_minus_five, self.now_min_plus_five)))
 
@@ -130,6 +131,7 @@ class test_sitemap:
         hour = t[0]
         min = t[1]
         sec = t[2]
+        lcc.log_info("Time now: %s" % str(self.now.time()))
         lcc.log_info("Published time to match: %s " % str(t))
         # Verify that module publish time is withing current time range
         all_of(check_that("Published time (Hour)", int(hour), is_between(self.now_hour, self.now_hour_plus_one)),

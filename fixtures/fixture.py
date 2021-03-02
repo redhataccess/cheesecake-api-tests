@@ -156,9 +156,9 @@ def setup(setup_test_repo, setup_test_products):
     session.auth = (username, auth)
 
     yield session
-    #
-    # # Deletes the products created using api endpoint
-    # lcc.log_info("Deleting test products created as a part of the tests.. ")
+
+    # Deletes the products created using api endpoint
+    lcc.log_info("Deleting test products created as a part of the tests.. ")
     path_to_new_product_node = url + "bin/cpm/nodes/node.json/content/products/" + product_name_uri
     lcc.log_info("Test Product node being deleted at: %s" % path_to_new_product_node)
     response1 = session.delete(path_to_new_product_node)

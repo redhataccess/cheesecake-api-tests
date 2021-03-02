@@ -10,6 +10,7 @@ from polling2 import poll
 from helpers import utilities
 import urllib.parse
 import suites.test_module_edit_publish as test_module_edit_publish
+import os
 
 sys.path.append("..")
 
@@ -18,6 +19,7 @@ module_prefix = base.config_reader('test_repo', 'module_content_prefix')
 repo_name = base.config_reader('test_repo', 'repo_name')
 assembly_title_prefix = base.config_reader('test_repo', 'assembly_prefix')
 assembly_prefix = base.config_reader('test_repo', 'assembly_content_prefix')
+env = os.getenv('PANTHEON_ENV')
 
 
 @lcc.suite(description="Suite: Verify contents of published module", rank=2)
@@ -108,6 +110,13 @@ class test_module_content:
       for i in range(count):
           check_that("Included in guides", data_from_published_module.json()["module"]["included_in_guides"][i]["title"],
                      contains_string(assembly_title_prefix) or contains_string(assembly_prefix))
+          check_that("Included in guides data", data_from_published_module.json()["module"]["included_in_guides"][i],
+                     all_of(has_entry("title"), has_entry("uuid"), has_entry("url"), has_entry("view_uri"),
+                            has_entry("relative_url"), has_entry("pantheon_env")))
+          check_that("Included in guides-> relative_url", published_assembly_url,
+                     contains_string(data_from_published_module.json()["module"]["included_in_guides"][i]["relative_url"]))
+          check_that("Included in guides-> relative_url",
+                     data_from_published_module.json()["module"]["included_in_guides"][i]["pantheon_env"], equal_to(env))
       is_part_of_content = data_from_published_module.json()["module"]["isPartOf"]
       lcc.log_info("Is part of content from the API response: %s " % str(is_part_of_content))
       is_part_of_count = len(data_from_published_module.json()["module"]["isPartOf"])
@@ -115,3 +124,10 @@ class test_module_content:
       for i in range(is_part_of_count):
           check_that("Is part of", data_from_published_module.json()["module"]["isPartOf"][i]["title"],
                      contains_string(assembly_title_prefix) or contains_string(assembly_prefix))
+          check_that("isPartOf data", data_from_published_module.json()["module"]["isPartOf"][i],
+                     all_of(has_entry("title"), has_entry("uuid"), has_entry("url"), has_entry("view_uri"),
+                            has_entry("relative_url"), has_entry("pantheon_env")))
+          check_that("isPartOf-> relative_url", published_assembly_url,
+                     contains_string(data_from_published_module.json()["module"]["isPartOf"][i]["relative_url"]))
+          check_that("isPartOf-> relative_url",
+                     data_from_published_module.json()["module"]["isPartOf"][i]["pantheon_env"], equal_to(env))
