@@ -71,9 +71,15 @@ class test_module_edit_publish:
 
     print("Payload: ", payload)
     time.sleep(10)
-    publish_module_request = self.api_auth.post(publish_url, data=payload)
+    publish_module_request = self.api_auth.post(publish_url, data=payload, headers={'Accept': 'application/json'})
     time.sleep(10)
     check_that("The publish request was successful", publish_module_request.status_code, equal_to(200))
+
+    # Check if the publish request response returns "url" for Customer Portal: CCS-3860
+    cp_url_returned = publish_module_request.json()["location"]
+    check_that("Publish module response contains The Customer Portal URL", cp_url_returned,
+               contains_string(fixture.cp_url + "documentation"))
+
     response = api_auth.get(self.request_url)
     # Check that the node has been marked as released
     check_that("The published module now has a 'released' node", response.json()["en_US"]["variants"][self.variant],
@@ -152,9 +158,15 @@ class test_module_edit_publish:
       "locale": "en_US",
       "variant": self.variant
     }
-    unpublish_module_request = self.api_auth.post(unpublish_url, data=payload)
+    unpublish_module_request = self.api_auth.post(unpublish_url, data=payload, headers={'Accept': 'application/json'})
     time.sleep(15)
     check_that("Unpublish request status code", unpublish_module_request.status_code, equal_to(200))
+
+    # Check if the unpublish request response does not return "url" for Customer Portal: CCS-3860
+    cp_url_returned = unpublish_module_request.json()["location"]
+    check_that("UnPublish module response does not contain The Customer Portal URL", cp_url_returned,
+               not_(contains_string(fixture.cp_url + "documentation")))
+
     response = api_auth.get(self.request_url)
     time.sleep(10)
     response = api_auth.get(self.request_url)

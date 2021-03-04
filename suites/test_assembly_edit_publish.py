@@ -79,10 +79,15 @@ class test_assembly_edit_publish:
         publish_url = fixture.url + self.path_for_assembly
         lcc.log_info("API end point used for publish request: %s" % publish_url)
         time.sleep(15)
-        publish_request = api_auth.post(publish_url, data=payload)
+        publish_request = api_auth.post(publish_url, data=payload, headers={'Accept': 'application/json'})
         lcc.log_info("Publish request response: \n %s" % str(publish_request.content))
         time.sleep(10)
         check_that("The publish request is successful", publish_request.status_code, equal_to(200))
+
+        # Check if the publish request response returns "url" for Customer Portal: CCS-3860
+        cp_url_returned = publish_request.json()["location"]
+        check_that("Publish assembly response contains The Customer Portal URL", cp_url_returned,
+                   contains_string(fixture.cp_url + "documentation"))
 
         req = api_auth.get(fixture.url + self.path_for_assembly + ".7.json")
 
@@ -170,9 +175,15 @@ class test_assembly_edit_publish:
         "locale": "en_US",
         "variant": self.variant
       }
-      unpublish_assembly_request = self.api_auth.post(unpublish_url, data=payload)
+      unpublish_assembly_request = self.api_auth.post(unpublish_url, data=payload, headers={'Accept': 'application/json'})
       time.sleep(12)
       check_that("Unpublish request status code", unpublish_assembly_request.status_code, equal_to(200))
+
+      # Check if the unpublish request response does not return "url" for Customer Portal: CCS-3860
+      cp_url_returned = unpublish_assembly_request.json()["location"]
+      check_that("UnPublish Assembly response does not contain The Customer Portal URL", cp_url_returned,
+                 not_(contains_string(fixture.cp_url + "documentation")))
+
       response = api_auth.get(self.request_url)
       time.sleep(10)
       response = api_auth.get(self.request_url)
