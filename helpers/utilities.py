@@ -116,11 +116,9 @@ def publish_content(url, path, variant, api_auth):
         "locale": "en_US",
         "variant": variant
     }
-    # headers = {'content-type': "application/x-www-form-urlencoded"}
-    # payload = json.dumps(payload)
-    # payload = urlencode(payload)
-    print("Payload: ",payload)
-    response = api_auth.post(publish_url, data=payload)
+
+    print("Payload: ", payload)
+    response = api_auth.post(publish_url, data=payload, headers={'Accept': 'application/json'})
     time.sleep(10)
     print("Response:", response)
     return response
@@ -134,12 +132,7 @@ def unpublish_content(url, path, variant, api_auth):
       "locale": "en_US",
       "variant": variant
     }
-    response = api_auth.post(unpublish_url, data=payload)
+    response = api_auth.post(unpublish_url, data=payload, headers={'Accept': 'application/json'})
     time.sleep(10)
     print("Response:", response)
     return response
-
-
-
-
-
