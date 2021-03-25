@@ -22,11 +22,11 @@ class test_assembly_edit_publish:
     global product_id
 
     @lcc.test("Verify that authenticated user can edit metadata for an assembly successfully")
-    def verify_edit_metadata(self, setup_test_products):
+    def verify_edit_metadata(self, setup_test_products, api_auth):
         self.variant = utilities.read_variant_name_from_pantheon2config()
         lcc.log_info(str(self.variant))
         self.variant = str(self.variant)
-        self.path_for_assembly = utilities.select_nth_item_from_search_results(1, fixture.url, assembly_title_prefix)
+        self.path_for_assembly = utilities.select_nth_item_from_search_results(1, fixture.url, assembly_title_prefix,api_auth)
 
         edit_metadata_url = fixture.url + self.path_for_assembly + "/en_US/variants/" + \
                             self.variant + "/draft/metadata"
@@ -94,7 +94,7 @@ class test_assembly_edit_publish:
         check_that("The status node in variants > variant >: ", req.json()["en_US"]["variants"][self.variant],
                    has_entry("released"), quiet=True)
 
-        self.assembly_uuid = utilities.fetch_uuid(fixture.url, self.path_for_assembly, self.variant)
+        self.assembly_uuid = utilities.fetch_uuid(fixture.url, self.path_for_assembly, self.variant, api_auth)
 
         published_assembly_url = fixture.url + "api/assembly/variant.json/" + self.assembly_uuid
         print("published assembly url: \n" + published_assembly_url)

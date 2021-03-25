@@ -28,7 +28,7 @@ class test_module_edit_publish:
     self.variant = utilities.read_variant_name_from_pantheon2config()
     lcc.log_info(str(self.variant))
     self.variant = str(self.variant)
-    self.path_for_module = utilities.select_nth_item_from_search_results(0, fixture.url, module_title_prefix)
+    self.path_for_module = utilities.select_nth_item_from_search_results(0, fixture.url, module_title_prefix, api_auth)
     edit_metadata_url = fixture.url + self.path_for_module + "/en_US/variants/" +\
                         self.variant + "/draft/metadata"
     lcc.log_info("Edit metadata request for module: %s " % edit_metadata_url)
@@ -85,7 +85,7 @@ class test_module_edit_publish:
     check_that("The published module now has a 'released' node", response.json()["en_US"]["variants"][self.variant],
                contains_string("released"))
 
-    self.module_uuid = utilities.fetch_uuid(fixture.url, self.path_for_module, self.variant)
+    self.module_uuid = utilities.fetch_uuid(fixture.url, self.path_for_module, self.variant, api_auth)
     published_module_url = fixture.url + "api/module/variant.json/" + self.module_uuid
     print("published module url: \n" + published_module_url)
     lcc.log_info("Published Module api endpoint: %s" % published_module_url)

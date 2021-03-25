@@ -33,30 +33,30 @@ class test_assembly_content:
       self.variant = utilities.read_variant_name_from_pantheon2config()
       lcc.log_info(str(self.variant))
       self.variant = str(self.variant)
-      self.path_for_module = utilities.select_nth_item_from_search_results(1, fixture.url, module_title_prefix)
+      self.path_for_module = utilities.select_nth_item_from_search_results(1, fixture.url, module_title_prefix, api_auth)
       if "/assemblies" in self.path_for_module:
-          self.path_for_module = utilities.select_nth_item_from_search_results(2, fixture.url, module_title_prefix)
+          self.path_for_module = utilities.select_nth_item_from_search_results(2, fixture.url, module_title_prefix, api_auth)
       res, product_name_uri = utilities.add_metadata(fixture.url, self.path_for_module, self.variant, api_auth,
                                                      setup_test_products, content_type="module")
       # print(res.content)
       utilities.publish_content(fixture.url, self.path_for_module, self.variant, api_auth)
 
-      module_uuid = utilities.fetch_uuid(fixture.url, self.path_for_module, self.variant)
+      module_uuid = utilities.fetch_uuid(fixture.url, self.path_for_module, self.variant, api_auth)
       published_module_url = fixture.url + "api/module/variant.json/" + module_uuid
       print("published module url: \n" + published_module_url)
       lcc.log_info("Published Module api endpoint: %s" % published_module_url)
       data_from_published_module = api_auth.get(published_module_url)
       print(data_from_published_module.json())
 
-      self.path_for_assembly = utilities.select_nth_item_from_search_results(0, fixture.url, assembly_prefix)
+      self.path_for_assembly = utilities.select_nth_item_from_search_results(0, fixture.url, assembly_prefix, api_auth)
       if "/modules" in self.path_for_assembly:
-          self.path_for_assembly = utilities.select_nth_item_from_search_results(1, fixture.url, assembly_prefix)
+          self.path_for_assembly = utilities.select_nth_item_from_search_results(1, fixture.url, assembly_prefix, api_auth)
       res, product_name_uri = utilities.add_metadata(fixture.url, self.path_for_assembly, self.variant, api_auth,
                                                      setup_test_products, content_type="assembly")
       # print(res.content)
       utilities.publish_content(fixture.url,self.path_for_assembly, self.variant, api_auth)
 
-      assembly_uuid = utilities.fetch_uuid(fixture.url, self.path_for_assembly, self.variant)
+      assembly_uuid = utilities.fetch_uuid(fixture.url, self.path_for_assembly, self.variant, api_auth)
       published_assembly_url = fixture.url + "api/assembly/variant.json/" + assembly_uuid
       print("published assembly url: \n" + published_assembly_url)
       lcc.log_info("Published Assembly api endpoint: %s" % published_assembly_url)

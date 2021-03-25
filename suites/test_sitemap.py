@@ -17,13 +17,13 @@ class test_sitemap:
     now_min_minus_five = now_min - 5
     now_min_plus_five = now_min + 5
 
-    def setup_suite(self, setup_test_products):
+    def setup_suite(self, setup_test_products, api_auth):
         lcc.log_info("Setup: Adding metadata and publishing module, assembly to test the sitemap endpoint...")
         lcc.log_info("Adding metadata, publishing the assembly first...")
         assembly_title_prefix = base.config_reader('test_repo', 'assembly_prefix')
         self.variant = utilities.read_variant_name_from_pantheon2config()
 
-        self.assembly_path = utilities.select_nth_item_from_search_results(1, fixture.url, assembly_title_prefix)
+        self.assembly_path = utilities.select_nth_item_from_search_results(1, fixture.url, assembly_title_prefix, api_auth)
         lcc.log_info("Assembly path for tests: %s" % self.assembly_path)
         # Add metadata to the assembly
         res, self.product_name_uri = utilities.add_metadata(fixture.url, self.assembly_path, self.variant, self.api_auth,
@@ -33,14 +33,14 @@ class test_sitemap:
         check_that("Publish Assembly response status ", publish_response.status_code, equal_to(200))
 
         # Verify if the assembly was marked released
-        response = requests.get(fixture.url + self.assembly_path + "/en_US/variants/" + self.variant + ".10.json")
+        response = api_auth.get(fixture.url + self.assembly_path + "/en_US/variants/" + self.variant + ".10.json")
         check_that("Assembly was published", response.json(), contains_string("released"))
         self.assembly_uuid = response.json()["jcr:uuid"]
         lcc.log_info("Assembly published uuid: %s" % self.assembly_uuid)
 
         lcc.log_info("Publishing a module now...")
         module_title_prefix = base.config_reader('test_repo', 'module_prefix')
-        self.module_path = utilities.select_nth_item_from_search_results(0, fixture.url, module_title_prefix)
+        self.module_path = utilities.select_nth_item_from_search_results(0, fixture.url, module_title_prefix, api_auth)
         print(self.module_path)
         # Add metadat to module
         module_res, self.product_name_uri = utilities.add_metadata(fixture.url, self.module_path, self.variant, self.api_auth,
@@ -48,7 +48,7 @@ class test_sitemap:
         # Publish the module
         m_publish_response = utilities.publish_content(fixture.url, self.module_path, self.variant, self.api_auth)
         # Verify if the module was marked released
-        module_response = requests.get(fixture.url + self.module_path + "/en_US/variants/" + self.variant + ".10.json")
+        module_response = api_auth.get(fixture.url + self.module_path + "/en_US/variants/" + self.variant + ".10.json")
         check_that("Document published", module_response.json(), contains_string("released"))
         self.module_uuid = module_response.json()["jcr:uuid"]
         lcc.log_info("Module published uuid: %s " % self.module_uuid)
@@ -57,7 +57,7 @@ class test_sitemap:
     def verify_assembly_sitemap(self, api_auth):
         lcc.log_info("Verifying sitemap for assemblies")
         req = fixture.url + "api/sitemap/assembly.sitemap.xml"
-        response = requests.get(req)
+        response = api_auth.get(req)
         url_loc = fixture.cp_url + "documentation/en-us/" + self.product_name_uri + "/" + constants.product_version_uri + "/guide/" + self.assembly_uuid
         # Verify that assembly sitemap response contains recently published assembly url
         check_that("Assembly Sitemap response at endpoint: %s" % req, response.text, contains_string(url_loc))
@@ -94,10 +94,10 @@ class test_sitemap:
         lcc.log_info("Verifying if unpublishing the assembly removes it from the sitemap...")
         # Unpublishing the assembly
         res = utilities.unpublish_content(fixture.url, self.assembly_path, self.variant, self.api_auth)
-        draft = requests.get(fixture.url + self.assembly_path + "/en_US/variants/" + self.variant + ".10.json")
+        draft = api_auth.get(fixture.url + self.assembly_path + "/en_US/variants/" + self.variant + ".10.json")
         # Check that assembly is unpublished successfully
         assert_that("Document unpublished", draft.json(), contains_string("draft"))
-        response1 = requests.get(req)
+        response1 = api_auth.get(req)
         # Verify unpublished module not listed in sitemap
         check_that("Assembly Sitemap response", response1.text, not_(contains_string(url_loc)))
 
@@ -105,7 +105,7 @@ class test_sitemap:
     def verify_module_sitemap(self, api_auth):
         lcc.log_info("Verifying sitemap for module")
         req = fixture.url + "api/sitemap/module.sitemap.xml"
-        response = requests.get(req)
+        response = api_auth.get(req)
         url_loc = fixture.cp_url + "documentation/en-us/" + self.product_name_uri + "/" + constants.product_version_uri + "/topic/" + self.module_uuid
         check_that("Module Sitemap response at endpoint: %s" % req, response.text, contains_string(url_loc))
 
@@ -142,9 +142,9 @@ class test_sitemap:
 
         # Unpublishing the module
         res = utilities.unpublish_content(fixture.url, self.module_path, self.variant, self.api_auth)
-        draft = requests.get(fixture.url + self.module_path + "/en_US/variants/" + self.variant + ".10.json")
+        draft = api_auth.get(fixture.url + self.module_path + "/en_US/variants/" + self.variant + ".10.json")
         # Check that the modules was unpublished successfully
         assert_that("Document unpublished", draft.json(), contains_string("draft"))
-        response1 = requests.get(req)
+        response1 = api_auth.get(req)
         # Verify unpublished module not listed in sitemap
         check_that("Module Sitemap response", response1.text, not_(contains_string(url_loc)))

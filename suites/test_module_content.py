@@ -36,10 +36,10 @@ class test_module_content:
       lcc.log_info(str(self.variant))
       self.variant = str(self.variant)
       lcc.log_info("In order to verify content for a module, publishing a related assembly...")
-      self.path_for_assembly = utilities.select_nth_item_from_search_results(0, fixture.url, assembly_title_prefix)
+      self.path_for_assembly = utilities.select_nth_item_from_search_results(0, fixture.url, assembly_title_prefix, api_auth)
 
       if "/modules" in self.path_for_assembly:
-          self.path_for_assembly = utilities.select_nth_item_from_search_results(1, fixture.url, assembly_title_prefix)
+          self.path_for_assembly = utilities.select_nth_item_from_search_results(1, fixture.url, assembly_title_prefix, api_auth)
 
       res, product_name_uri = utilities.add_metadata(fixture.url, self.path_for_assembly, self.variant, api_auth,
                                                      setup_test_products, content_type="assembly")
@@ -50,16 +50,16 @@ class test_module_content:
       check_that("Expect the above assembly to be published, response code ", publish_req_assembly.status_code, equal_to(200))
       lcc.log_info("Publish assembly response content: %s" % str(publish_req_assembly.content))
 
-      assembly_uuid = utilities.fetch_uuid(fixture.url, self.path_for_assembly, self.variant)
+      assembly_uuid = utilities.fetch_uuid(fixture.url, self.path_for_assembly, self.variant,api_auth)
       published_assembly_url = fixture.url + "api/assembly/variant.json/" + assembly_uuid
       print("published assembly url: \n" + published_assembly_url)
       lcc.log_info("Published Assembly api endpoint: %s" % published_assembly_url)
       data_from_published_assembly = api_auth.get(published_assembly_url)
 
 
-      self.path_for_module = utilities.select_nth_item_from_search_results(0, fixture.url, module_prefix)
+      self.path_for_module = utilities.select_nth_item_from_search_results(0, fixture.url, module_prefix, api_auth)
       if "/assemblies" in self.path_for_module:
-          self.path_for_module = utilities.select_nth_item_from_search_results(1, fixture.url, module_prefix)
+          self.path_for_module = utilities.select_nth_item_from_search_results(1, fixture.url, module_prefix,api_auth)
       res, product_name_uri = utilities.add_metadata(fixture.url, self.path_for_module, self.variant, api_auth,
                                                      setup_test_products, content_type="module")
       lcc.log_info("Publishing a module now to test for included content: %s" % self.path_for_module)
@@ -67,7 +67,7 @@ class test_module_content:
       publish_req_module = utilities.publish_content(fixture.url,self.path_for_module, self.variant, api_auth)
 
       check_that("Module has been published ", publish_req_module.status_code, equal_to(200))
-      module_uuid = utilities.fetch_uuid(fixture.url, self.path_for_module, self.variant)
+      module_uuid = utilities.fetch_uuid(fixture.url, self.path_for_module, self.variant,api_auth)
       published_module_url = fixture.url + "api/module/variant.json/" + module_uuid
       # print("published module url: \n" + published_module_url)
       lcc.log_info("Published Module api endpoint: %s" % published_module_url)
