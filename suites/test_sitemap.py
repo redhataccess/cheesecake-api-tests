@@ -5,17 +5,25 @@ from fixtures import fixture
 from helpers import constants, utilities
 from lemoncheesecake.matching import *
 import xml.etree.ElementTree as ET
-from datetime import datetime,timezone
+from datetime import datetime,timezone, timedelta
 
 @lcc.suite(description="Suite: Verify sitemap api endpoints for assembly and modules", rank=8)
 class test_sitemap:
     api_auth = lcc.inject_fixture("api_auth")
     now = datetime.now(timezone.utc)
-    now_hour = int(datetime.now(timezone.utc).hour)
-    now_hour_plus_one = now_hour + 1
-    now_min = int(datetime.now(timezone.utc).minute)
-    now_min_minus_five = now_min - 5
-    now_min_plus_five = now_min + 5
+    # now_hour = int(datetime.now(timezone.utc).hour)
+    # now_hour_plus_one = now_hour + 1
+    # now_min = int(datetime.now(timezone.utc).minute)
+    # now_min_minus_ten = now_min - 15
+    # now_min_plus_ten = now_min + 15
+    # if(now_min_plus_ten >= 60):
+    #     now_min_plus_ten = now_min_plus_ten-60
+    # if(now_min_minus_ten < 0):
+    #     now_min_minus_ten = 0
+    #
+    # def check_time_range(time_read):
+    range = now + timedelta(minutes=15)
+
 
     def setup_suite(self, setup_test_products, api_auth):
         lcc.log_info("Setup: Adding metadata and publishing module, assembly to test the sitemap endpoint...")
@@ -75,21 +83,28 @@ class test_sitemap:
         # Extract published date for recent assembly from the sitemap
         publish_date = xml_dict[url_loc]
         lcc.log_info("Extracting the publish date for %s as %s" % (url_loc, publish_date))
-        date = publish_date.split("T")
+        # date = publish_date.split("T")
+        #
+        # # Verify that published date is same as current date
+        # check_that("Published date", date[0], equal_to(str(self.now.date())))
+        #
+        # t = date[1].split(".")[0].split(":")
+        # hour = t[0]
+        # min = t[1]
+        # sec = t[2]
+        # lcc.log_info("Time now: %s" % str(self.now.time()))
+        # lcc.log_info("Published time to match: %s " % str(t))
+        publish_date = publish_date.replace("Z", "+00:00")
+        published_date = datetime.fromisoformat(publish_date)
+        flag = False
+        if(self.now <= published_date <= self.range):
+            flag = True
 
-        # Verify that published date is same as current date
-        check_that("Published date", date[0], equal_to(str(self.now.date())))
+        check_that("Published date and time is in range", flag, is_true())
 
-        t = date[1].split(".")[0].split(":")
-        hour = t[0]
-        min = t[1]
-        sec = t[2]
-        lcc.log_info("Time now: %s" % str(self.now.time()))
-        lcc.log_info("Published time to match: %s " % str(t))
-
-        # Verify that assembly publish time is within current time range
-        all_of(check_that("Published time (Hour)", int(hour), is_between(self.now_hour, self.now_hour_plus_one)),
-        check_that("Published time (Min)", int(min), is_between(self.now_min_minus_five, self.now_min_plus_five)))
+        # # Verify that assembly publish time is within current time range
+        # all_of(check_that("Published time (Hour)", int(hour), is_between(self.now_hour, self.now_hour_plus_one)),
+        #        check_that("Published time (Min)", int(min), is_between(self.now_min_minus_ten, self.now_min_plus_ten)))
 
         lcc.log_info("Verifying if unpublishing the assembly removes it from the sitemap...")
         # Unpublishing the assembly
@@ -122,21 +137,28 @@ class test_sitemap:
         # Extract published date for recent assembly from the sitemap
         publish_date = xml_dict[url_loc]
         lcc.log_info("Extracting the publish date for %s as %s" % (url_loc, publish_date))
-        date = publish_date.split("T")
+        # date = publish_date.split("T")
+        #
+        # # Verify that published date is same as current date
+        # check_that("Published date", date[0], equal_to(str(self.now.date())))
+        #
+        # t = date[1].split(".")[0].split(":")
+        # hour = t[0]
+        # min = t[1]
+        # sec = t[2]
+        # lcc.log_info("Time now: %s" % str(self.now.time()))
+        # lcc.log_info("Published time to match: %s " % str(t))
+        # # Verify that module publish time is withing current time range
+        # all_of(check_that("Published time (Hour)", int(hour), is_between(self.now_hour, self.now_hour_plus_one)),
+        #        check_that("Published time (Min)", int(min),
+        #                   is_between(self.now_min_minus_ten, self.now_min_plus_ten)))
+        publish_date = publish_date.replace("Z", "+00:00")
+        published_date = datetime.fromisoformat(publish_date)
+        flag = False
+        if (self.now <= published_date <= self.range):
+            flag = True
 
-        # Verify that published date is same as current date
-        check_that("Published date", date[0], equal_to(str(self.now.date())))
-
-        t = date[1].split(".")[0].split(":")
-        hour = t[0]
-        min = t[1]
-        sec = t[2]
-        lcc.log_info("Time now: %s" % str(self.now.time()))
-        lcc.log_info("Published time to match: %s " % str(t))
-        # Verify that module publish time is withing current time range
-        all_of(check_that("Published time (Hour)", int(hour), is_between(self.now_hour, self.now_hour_plus_one)),
-               check_that("Published time (Min)", int(min),
-                          is_between(self.now_min_minus_five, self.now_min_plus_five)))
+        check_that("Published date and time is in range", flag, is_true())
 
         lcc.log_info("Verifying if unpublishing a module removes it from the sitemap.xml... ")
 

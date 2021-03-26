@@ -7,12 +7,12 @@ import requests
 import lemoncheesecake.api as lcc
 import os
 from helpers import constants
+from fixtures import fixture
 # from urllib.parse import urlencode
 import json
 # sys.path.append("..")
 
 # setup_test_products = lcc.inject_fixture("setup_test_products")
-
 
 def generate_random_string(string_length):
     # Generate a random string of fixed length
@@ -32,7 +32,8 @@ def read_variant_name_from_pantheon2config():
 
 
 def select_nth_item_from_search_results(n, url, title_prefix, api_auth):
-    search_req = url + "pantheon/internal/modules.json?search=" + title_prefix + "&key=Updated date"
+    # search_req = url + "pantheon/internal/modules.json?search=" + title_prefix + "&key=Updated date"
+    search_req = url + "pantheon/internal/modules.json?repo=" + fixture.test_repo_name + "&search=" + title_prefix + "&key=Updated date"
     lcc.log_info("Searching text using the endpoint: %s" % search_req)
     search_response = api_auth.get(search_req)
     # search_response = requests.get(search_request_url)

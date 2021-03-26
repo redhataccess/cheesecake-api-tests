@@ -43,6 +43,7 @@ class test_assembly_content:
 
       module_uuid = utilities.fetch_uuid(fixture.url, self.path_for_module, self.variant, api_auth)
       published_module_url = fixture.url + "api/module/variant.json/" + module_uuid
+      published_module_relative_url = "api/module/variant.json/" + module_uuid
       print("published module url: \n" + published_module_url)
       lcc.log_info("Published Module api endpoint: %s" % published_module_url)
       data_from_published_module = api_auth.get(published_module_url)
@@ -104,19 +105,18 @@ class test_assembly_content:
           check_that("Modules included",
                      data_from_published_assembly.json()["assembly"]["modules_included"][i],
                      all_of(has_entry("canonical_uuid"), has_entry("level_offset"), has_entry("module_uuid"),
-                            has_entry("title"), has_entry("url"), has_entry("pantheon_env"), has_entry("relative_url")))
-          check_that("Modules included-> relative_url", published_module_url, contains_string(
-              data_from_published_assembly.json()["assembly"]["modules_included"][i]["relative_url"]))
+                            has_entry("title"), has_entry("url"), has_entry("pantheon_env"),
+                            has_entry("relative_url", equal_to("/"+published_module_relative_url))))
           check_that("Modules included-> pantheon_env",
                      data_from_published_assembly.json()["assembly"]["modules_included"][i]["pantheon_env"], equal_to(env))
+
       number_of_modules_hasPart = len(data_from_published_assembly.json()["assembly"]["hasPart"])
       check_that("Number of Modules in hasPart", number_of_modules_hasPart, greater_than_or_equal_to(1))
       for i in range(number_of_modules_hasPart):
           check_that("hasPart section ",
                      data_from_published_assembly.json()["assembly"]["hasPart"][i],
                      all_of(has_entry("canonical_uuid"), has_entry("level_offset"), has_entry("module_uuid"),
-                            has_entry("title"), has_entry("url"), has_entry("pantheon_env"), has_entry("relative_url")))
-          check_that("hasPart-> relative_url", published_module_url,
-                     contains_string(data_from_published_assembly.json()["assembly"]["hasPart"][i]["relative_url"]))
-          check_that("hasPart-> pantheon_env",
-                     data_from_published_assembly.json()["assembly"]["hasPart"][i]["pantheon_env"], equal_to(env))
+                            has_entry("title"), has_entry("url"), has_entry("pantheon_env"),
+                            has_entry("relative_url", equal_to("/"+published_module_relative_url))))
+          any_of(check_that("hasPart-> pantheon_env",
+                     data_from_published_assembly.json()["assembly"]["hasPart"][i]["pantheon_env"], equal_to(env)))

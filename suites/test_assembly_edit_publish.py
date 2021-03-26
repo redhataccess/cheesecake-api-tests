@@ -118,7 +118,7 @@ class test_assembly_edit_publish:
     def ack_status_check(self, api_auth):
       self.request_url = fixture.url + self.path_for_assembly + ".10.json"
       response  = api_auth.get(self.request_url)
-      time.sleep(30)
+      time.sleep(60)
       #calling the get request twice
       response = api_auth.get(self.request_url)
       lcc.log_info("Checking for ack_status at url: %s" % str(self.request_url))
@@ -183,9 +183,7 @@ class test_assembly_edit_publish:
       cp_url_returned = unpublish_assembly_request.json()["location"]
       check_that("UnPublish Assembly response does not contain The Customer Portal URL", cp_url_returned,
                  not_(contains_string(fixture.cp_url + "documentation")))
-
-      response = api_auth.get(self.request_url)
-      time.sleep(10)
+      time.sleep(20)
       response = api_auth.get(self.request_url)
       lcc.log_info("Checking for ack_status at url after unpublish: %s" % str(self.request_url))
       check_that("The unpublished assembly now has a draft node with ack_status node ",

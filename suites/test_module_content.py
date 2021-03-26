@@ -52,6 +52,7 @@ class test_module_content:
 
       assembly_uuid = utilities.fetch_uuid(fixture.url, self.path_for_assembly, self.variant,api_auth)
       published_assembly_url = fixture.url + "api/assembly/variant.json/" + assembly_uuid
+      published_assembly_relative_url = "api/assembly/variant.json/" + assembly_uuid
       print("published assembly url: \n" + published_assembly_url)
       lcc.log_info("Published Assembly api endpoint: %s" % published_assembly_url)
       data_from_published_assembly = api_auth.get(published_assembly_url)
@@ -112,11 +113,11 @@ class test_module_content:
                      contains_string(assembly_title_prefix) or contains_string(assembly_prefix))
           check_that("Included in guides data", data_from_published_module.json()["module"]["included_in_guides"][i],
                      all_of(has_entry("title"), has_entry("uuid"), has_entry("url"), has_entry("view_uri"),
-                            has_entry("relative_url"), has_entry("pantheon_env")))
-          check_that("Included in guides-> relative_url", published_assembly_url,
-                     contains_string(data_from_published_module.json()["module"]["included_in_guides"][i]["relative_url"]))
-          check_that("Included in guides-> relative_url",
-                     data_from_published_module.json()["module"]["included_in_guides"][i]["pantheon_env"], equal_to(env))
+                            has_entry("relative_url", equal_to("/"+published_assembly_relative_url)), has_entry("pantheon_env")))
+          check_that("Included in guides-> pantheon_env",
+                     data_from_published_module.json()["module"]["included_in_guides"][i]["pantheon_env"],
+                     equal_to(env))
+
       is_part_of_content = data_from_published_module.json()["module"]["isPartOf"]
       lcc.log_info("Is part of content from the API response: %s " % str(is_part_of_content))
       is_part_of_count = len(data_from_published_module.json()["module"]["isPartOf"])
@@ -126,8 +127,7 @@ class test_module_content:
                      contains_string(assembly_title_prefix) or contains_string(assembly_prefix))
           check_that("isPartOf data", data_from_published_module.json()["module"]["isPartOf"][i],
                      all_of(has_entry("title"), has_entry("uuid"), has_entry("url"), has_entry("view_uri"),
-                            has_entry("relative_url"), has_entry("pantheon_env")))
-          check_that("isPartOf-> relative_url", published_assembly_url,
-                     contains_string(data_from_published_module.json()["module"]["isPartOf"][i]["relative_url"]))
-          check_that("isPartOf-> relative_url",
+                            has_entry("relative_url", equal_to("/"+published_assembly_relative_url)), has_entry("pantheon_env")))
+          check_that("isPartOf-> pantheon_env",
                      data_from_published_module.json()["module"]["isPartOf"][i]["pantheon_env"], equal_to(env))
+

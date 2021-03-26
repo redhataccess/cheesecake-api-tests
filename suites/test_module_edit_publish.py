@@ -104,9 +104,7 @@ class test_module_edit_publish:
   @lcc.test("Verify that acknowledgement was received from Hydra")
   def ack_status_check(self, api_auth):
     #self.request_module_url = fixture.url + self.path_for_module + ".10.json"
-    time.sleep(10)
-    response = api_auth.get(self.request_url)
-    time.sleep(10)
+    time.sleep(40)
     response = api_auth.get(self.request_url)
     lcc.log_info("Checking for ack_status at url: %s" % str(self.request_url))
     check_that("The published module now has a released node with ack_status node ",
@@ -119,7 +117,6 @@ class test_module_edit_publish:
     check_that("The published module has a successful ACK from Hydra",
                response.json()["en_US"]["variants"][self.variant]["released"]["ack_status"]["pant:status"],
                equal_to("SUCCESSFUL"))
-
 
   @lcc.test("Verify that the module was indexed in Solr in docv2 collection")
   def verify_solr_indexing(self):
@@ -167,8 +164,7 @@ class test_module_edit_publish:
     check_that("UnPublish module response does not contain The Customer Portal URL", cp_url_returned,
                not_(contains_string(fixture.cp_url + "documentation")))
 
-    response = api_auth.get(self.request_url)
-    time.sleep(10)
+    time.sleep(20)
     response = api_auth.get(self.request_url)
     lcc.log_info("Checking for ack_status at url after unpublish: %s" % str(self.request_url))
     check_that("The unpublished module now has a draft node with ack_status node ",
