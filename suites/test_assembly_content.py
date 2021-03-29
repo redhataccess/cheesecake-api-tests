@@ -106,7 +106,7 @@ class test_assembly_content:
                      data_from_published_assembly.json()["assembly"]["modules_included"][i],
                      all_of(has_entry("canonical_uuid"), has_entry("level_offset"), has_entry("module_uuid"),
                             has_entry("title"), has_entry("url"), has_entry("pantheon_env"),
-                            has_entry("relative_url", equal_to("/"+published_module_relative_url))))
+                            has_entry("relative_url", any_of(equal_to("/"+published_module_relative_url), equal_to("")))))
           check_that("Modules included-> pantheon_env",
                      data_from_published_assembly.json()["assembly"]["modules_included"][i]["pantheon_env"], equal_to(env))
 
@@ -117,6 +117,6 @@ class test_assembly_content:
                      data_from_published_assembly.json()["assembly"]["hasPart"][i],
                      all_of(has_entry("canonical_uuid"), has_entry("level_offset"), has_entry("module_uuid"),
                             has_entry("title"), has_entry("url"), has_entry("pantheon_env"),
-                            has_entry("relative_url", equal_to("/"+published_module_relative_url))))
+                            has_entry("relative_url", any_of(equal_to("/"+published_module_relative_url) ,equal_to("")))))
           any_of(check_that("hasPart-> pantheon_env",
                      data_from_published_assembly.json()["assembly"]["hasPart"][i]["pantheon_env"], equal_to(env)))

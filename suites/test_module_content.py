@@ -113,7 +113,7 @@ class test_module_content:
                      contains_string(assembly_title_prefix) or contains_string(assembly_prefix))
           check_that("Included in guides data", data_from_published_module.json()["module"]["included_in_guides"][i],
                      all_of(has_entry("title"), has_entry("uuid"), has_entry("url"), has_entry("view_uri"),
-                            has_entry("relative_url", equal_to("/"+published_assembly_relative_url)), has_entry("pantheon_env")))
+                            has_entry("relative_url", any_of(equal_to("/"+published_assembly_relative_url), equal_to(""))), has_entry("pantheon_env")))
           check_that("Included in guides-> pantheon_env",
                      data_from_published_module.json()["module"]["included_in_guides"][i]["pantheon_env"],
                      equal_to(env))
@@ -127,7 +127,7 @@ class test_module_content:
                      contains_string(assembly_title_prefix) or contains_string(assembly_prefix))
           check_that("isPartOf data", data_from_published_module.json()["module"]["isPartOf"][i],
                      all_of(has_entry("title"), has_entry("uuid"), has_entry("url"), has_entry("view_uri"),
-                            has_entry("relative_url", equal_to("/"+published_assembly_relative_url)), has_entry("pantheon_env")))
+                            has_entry("relative_url", any_of(equal_to("/"+published_assembly_relative_url), equal_to(""))), has_entry("pantheon_env")))
           check_that("isPartOf-> pantheon_env",
                      data_from_published_module.json()["module"]["isPartOf"][i]["pantheon_env"], equal_to(env))
 
