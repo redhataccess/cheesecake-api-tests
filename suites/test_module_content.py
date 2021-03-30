@@ -108,26 +108,32 @@ class test_module_content:
       lcc.log_info("Included in guides from the API response: %s" % str(data_from_published_module.json()["module"]["included_in_guides"]))
       count = len(data_from_published_module.json()["module"]["included_in_guides"])
       check_that("Number of guides included in", count, greater_than_or_equal_to(1))
+      relative_url = []
       for i in range(count):
+          print(data_from_published_module.json()["module"]["included_in_guides"][i]["relative_url"])
+          relative_url.append(data_from_published_module.json()["module"]["included_in_guides"][i]["relative_url"])
           check_that("Included in guides", data_from_published_module.json()["module"]["included_in_guides"][i]["title"],
                      contains_string(assembly_title_prefix) or contains_string(assembly_prefix))
           check_that("Included in guides data", data_from_published_module.json()["module"]["included_in_guides"][i],
                      all_of(has_entry("title"), has_entry("uuid"), has_entry("url"), has_entry("view_uri"),
-                            has_entry("relative_url", any_of(equal_to("/"+published_assembly_relative_url), equal_to(""))), has_entry("pantheon_env")))
+                            has_entry("relative_url"), has_entry("pantheon_env")))
           check_that("Included in guides-> pantheon_env",
                      data_from_published_module.json()["module"]["included_in_guides"][i]["pantheon_env"],
                      equal_to(env))
-
+      check_that("Relative url to", relative_url, has_item("/"+published_assembly_relative_url))
       is_part_of_content = data_from_published_module.json()["module"]["isPartOf"]
       lcc.log_info("Is part of content from the API response: %s " % str(is_part_of_content))
       is_part_of_count = len(data_from_published_module.json()["module"]["isPartOf"])
       check_that("Is part of count", is_part_of_count, greater_than_or_equal_to(1))
+      relative_url1 = []
       for i in range(is_part_of_count):
+          print(data_from_published_module.json()["module"]["isPartOf"][i]["relative_url"])
+          relative_url1.append(data_from_published_module.json()["module"]["isPartOf"][i]["relative_url"])
           check_that("Is part of", data_from_published_module.json()["module"]["isPartOf"][i]["title"],
                      contains_string(assembly_title_prefix) or contains_string(assembly_prefix))
           check_that("isPartOf data", data_from_published_module.json()["module"]["isPartOf"][i],
                      all_of(has_entry("title"), has_entry("uuid"), has_entry("url"), has_entry("view_uri"),
-                            has_entry("relative_url", any_of(equal_to("/"+published_assembly_relative_url), equal_to(""))), has_entry("pantheon_env")))
+                            has_entry("relative_url"), has_entry("pantheon_env")))
           check_that("isPartOf-> pantheon_env",
                      data_from_published_module.json()["module"]["isPartOf"][i]["pantheon_env"], equal_to(env))
-
+      check_that("Relative url to", relative_url1, has_item("/"+published_assembly_relative_url))

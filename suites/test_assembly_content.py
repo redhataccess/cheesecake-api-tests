@@ -98,25 +98,35 @@ class test_assembly_content:
       check_that("The product version",
                  data_from_published_assembly.json()["assembly"]["products"][0]["product_version"],
                  equal_to(constants.product_version))
+      lcc.log_info("Modules included from the API response: %s" % str(
+          data_from_published_assembly.json()["assembly"]["modules_included"]))
       number_of_modules_included = len(data_from_published_assembly.json()["assembly"]["modules_included"])
       check_that("Number of Modules included", number_of_modules_included, greater_than_or_equal_to(1))
+      relative_url = []
       for i in range(number_of_modules_included):
-          print ("Iteration::", i)
+          print(data_from_published_assembly.json()["assembly"]["modules_included"][i]["relative_url"])
+          relative_url.append(data_from_published_assembly.json()["assembly"]["modules_included"][i]["relative_url"])
           check_that("Modules included",
                      data_from_published_assembly.json()["assembly"]["modules_included"][i],
                      all_of(has_entry("canonical_uuid"), has_entry("level_offset"), has_entry("module_uuid"),
                             has_entry("title"), has_entry("url"), has_entry("pantheon_env"),
-                            has_entry("relative_url", any_of(equal_to("/"+published_module_relative_url), equal_to("")))))
+                            has_entry("relative_url")))
           check_that("Modules included-> pantheon_env",
                      data_from_published_assembly.json()["assembly"]["modules_included"][i]["pantheon_env"], equal_to(env))
-
+      check_that("Relative url to", relative_url, has_item("/"+published_module_relative_url))
+      lcc.log_info("hasPart from the API response: %s" % str(
+          data_from_published_assembly.json()["assembly"]["hasPart"]))
       number_of_modules_hasPart = len(data_from_published_assembly.json()["assembly"]["hasPart"])
       check_that("Number of Modules in hasPart", number_of_modules_hasPart, greater_than_or_equal_to(1))
+      relative_url1 = []
       for i in range(number_of_modules_hasPart):
+          print(data_from_published_assembly.json()["assembly"]["hasPart"][i]["relative_url"])
+          relative_url1.append(data_from_published_assembly.json()["assembly"]["hasPart"][i]["relative_url"])
           check_that("hasPart section ",
                      data_from_published_assembly.json()["assembly"]["hasPart"][i],
                      all_of(has_entry("canonical_uuid"), has_entry("level_offset"), has_entry("module_uuid"),
                             has_entry("title"), has_entry("url"), has_entry("pantheon_env"),
-                            has_entry("relative_url", any_of(equal_to("/"+published_module_relative_url) ,equal_to("")))))
+                            has_entry("relative_url")))
           any_of(check_that("hasPart-> pantheon_env",
                      data_from_published_assembly.json()["assembly"]["hasPart"][i]["pantheon_env"], equal_to(env)))
+      check_that("Relative url to", relative_url1, has_item("/"+published_module_relative_url))
