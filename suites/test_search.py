@@ -18,11 +18,11 @@ class test_search:
   api_auth = lcc.inject_fixture("api_auth")
 
   @lcc.test("Verify that the recently uploaded modules are present in search results: %s" % module_title_prefix)
-  def search(self):
+  def search(self, api_auth):
     lcc.log_info("Making a search request for prefix: API test module")
     search_endpoint = fixture.url + "pantheon/internal/modules.json?search=" + module_title_prefix
     lcc.log_info(str(search_endpoint))
-    search_request = requests.get(search_endpoint)
+    search_request = api_auth.get(search_endpoint)
     search_results = search_request.json()
     number_of_results = search_results["size"]
     lcc.log_info(str(search_request.json()))

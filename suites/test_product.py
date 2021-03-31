@@ -36,7 +36,7 @@ class test_product:
 
         # Hit the api to get id of created product
         get_product_id_endpoint = self.path_to_product + ".json"
-        product_id_request = requests.get(get_product_id_endpoint)
+        product_id_request = api_auth.get(get_product_id_endpoint)
         check_that("%s API status code" % get_product_id_endpoint, product_id_request.status_code, equal_to(200))
         product_id = product_id_request.json()
         lcc.log_info("Response for product creation: %s" % str(product_id))
@@ -47,7 +47,7 @@ class test_product:
 
     @lcc.test("Verify  that product version is created successfully and check for: uuid, name, sling:resourceType,"
               " jcr:primaryType")
-    def verify_product_version_info(self):
+    def verify_product_version_info(self, api_auth):
         path_to_version = self.path_to_product + "/versions/{}".format(constants.product_version)
         lcc.log_info("Product version being created for the above product: %s" % path_to_version)
 
@@ -63,7 +63,7 @@ class test_product:
 
         # Hit the api to get id of product version
         path_to_product_id = self.path_to_product + "/versions/" + constants.product_version + ".json"
-        product_version_id_req = requests.get(path_to_product_id)
+        product_version_id_req = api_auth.get(path_to_product_id)
         check_that("%s API status code" % path_to_product_id, product_version_id_req.status_code, equal_to(200))
         product_version_id = product_version_id_req.json()
         check_that("Product version uuid", product_version_id["jcr:uuid"], is_not_none())

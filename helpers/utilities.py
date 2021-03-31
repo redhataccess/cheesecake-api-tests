@@ -7,12 +7,12 @@ import requests
 import lemoncheesecake.api as lcc
 import os
 from helpers import constants
+from fixtures import fixture
 # from urllib.parse import urlencode
 import json
 # sys.path.append("..")
 
 # setup_test_products = lcc.inject_fixture("setup_test_products")
-
 
 def generate_random_string(string_length):
     # Generate a random string of fixed length
@@ -31,10 +31,11 @@ def read_variant_name_from_pantheon2config():
             return str(variant)
 
 
-def select_nth_item_from_search_results(n, url, title_prefix):
-    search_req = url + "pantheon/internal/modules.json?search=" + title_prefix + "&key=Updated date"
+def select_nth_item_from_search_results(n, url, title_prefix, api_auth):
+    # search_req = url + "pantheon/internal/modules.json?search=" + title_prefix + "&key=Updated date"
+    search_req = url + "pantheon/internal/modules.json?repo=" + fixture.test_repo_name + "&search=" + title_prefix + "&key=Updated date"
     lcc.log_info("Searching text using the endpoint: %s" % search_req)
-    search_response = requests.get(search_req)
+    search_response = api_auth.get(search_req)
     # search_response = requests.get(search_request_url)
     search_results = search_response.json()
     lcc.log_info("Search response:: %s" % search_response.content)
@@ -68,11 +69,12 @@ def fetch_uuid_of_assembly(url, assembly_path, variant):
     print("Assembly uuid: " + str(assembly_uuid))
     return assembly_uuid
 
-def fetch_uuid(url, path, variant):
+def fetch_uuid(url, path, variant, api_auth):
     path = url + path + ".7.json"
-    path_endpoint = requests.get(path)
+    path_endpoint = api_auth.get(path)
     print("\n Content path: " + path)
     lcc.log_info("Content path being checked: %s" % path)
+    lcc.log_info("Variant:"+ variant)
     uuid = path_endpoint.json()["en_US"]["variants"][variant]["jcr:uuid"]
     print("uuid: " + str(uuid))
     return uuid

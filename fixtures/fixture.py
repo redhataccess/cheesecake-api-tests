@@ -139,7 +139,7 @@ def setup_test_products():
                response.status_code, any_of(equal_to(201), equal_to(200)))
     time.sleep(5)
     path_to_product_id = path_to_product_node + ".2.json"
-    product_version_id_req = requests.get(path_to_product_id)
+    product_version_id_req = requests.get(path_to_product_id, auth=(username, auth))
     print(product_version_id_req.json())
 
     print(path_to_product_id)
