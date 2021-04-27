@@ -83,7 +83,7 @@ class test_module_edit_publish:
     response = api_auth.get(self.request_url)
     # Check that the node has been marked as released
     check_that("The published module now has a 'released' node", response.json()["en_US"]["variants"][self.variant],
-               contains_string("released"))
+               has_entry("released"))
 
     self.module_uuid = utilities.fetch_uuid(fixture.url, self.path_for_module, self.variant, api_auth)
     published_module_url = fixture.url + "api/module/variant.json/" + self.module_uuid
