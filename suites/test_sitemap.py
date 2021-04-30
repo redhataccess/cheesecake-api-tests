@@ -42,7 +42,7 @@ class test_sitemap:
 
         # Verify if the assembly was marked released
         response = api_auth.get(fixture.url + self.assembly_path + "/en_US/variants/" + self.variant + ".10.json")
-        check_that("Assembly was published", response.json(), contains_string("released"))
+        check_that("Assembly was published", response.json(), has_entry("released"))
         self.assembly_uuid = response.json()["jcr:uuid"]
         lcc.log_info("Assembly published uuid: %s" % self.assembly_uuid)
 
@@ -57,7 +57,7 @@ class test_sitemap:
         m_publish_response = utilities.publish_content(fixture.url, self.module_path, self.variant, self.api_auth)
         # Verify if the module was marked released
         module_response = api_auth.get(fixture.url + self.module_path + "/en_US/variants/" + self.variant + ".10.json")
-        check_that("Document published", module_response.json(), contains_string("released"))
+        check_that("Document published", module_response.json(), has_entry("released"))
         self.module_uuid = module_response.json()["jcr:uuid"]
         lcc.log_info("Module published uuid: %s " % self.module_uuid)
 
@@ -111,7 +111,7 @@ class test_sitemap:
         res = utilities.unpublish_content(fixture.url, self.assembly_path, self.variant, self.api_auth)
         draft = api_auth.get(fixture.url + self.assembly_path + "/en_US/variants/" + self.variant + ".10.json")
         # Check that assembly is unpublished successfully
-        assert_that("Document unpublished", draft.json(), contains_string("draft"))
+        assert_that("Document unpublished", draft.json(), has_entry("draft"))
         response1 = api_auth.get(req)
         # Verify unpublished module not listed in sitemap
         check_that("Assembly Sitemap response", response1.text, not_(contains_string(url_loc)))
@@ -166,7 +166,7 @@ class test_sitemap:
         res = utilities.unpublish_content(fixture.url, self.module_path, self.variant, self.api_auth)
         draft = api_auth.get(fixture.url + self.module_path + "/en_US/variants/" + self.variant + ".10.json")
         # Check that the modules was unpublished successfully
-        assert_that("Document unpublished", draft.json(), contains_string("draft"))
+        assert_that("Document unpublished", draft.json(), has_entry("draft"))
         response1 = api_auth.get(req)
         # Verify unpublished module not listed in sitemap
         check_that("Module Sitemap response", response1.text, not_(contains_string(url_loc)))
