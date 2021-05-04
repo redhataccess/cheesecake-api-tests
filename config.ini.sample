@@ -56,3 +56,6 @@ git_import_repo_branch=<specify the branch name from which you want to import, e
 number_of_modules_imported=<specify the known number of modules you are uploading, eg. 10>
 module_prefix=<Add a prefix text which is present in every module title to be used for search>
 assembly_prefix=<Add a prefix text for assemblies separately to search for assembly>
+number_of_resources_uploaded=<number of resources uploaded from repo, eg. 17>
+number_of_modules_uploaded=<number of modules uploaded from repo, eg. 6>
+number_of_assemblies_uploaded=<number of assemblies uploaded, eg.1>
