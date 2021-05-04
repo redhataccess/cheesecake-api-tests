@@ -120,6 +120,7 @@ class test_module_content:
           check_that("Included in guides-> pantheon_env",
                      data_from_published_module.json()["module"]["included_in_guides"][i]["pantheon_env"],
                      equal_to(env))
+      print(*relative_url)
       check_that("Relative url to", relative_url, has_item("/"+published_assembly_relative_url))
       is_part_of_content = data_from_published_module.json()["module"]["isPartOf"]
       lcc.log_info("Is part of content from the API response: %s " % str(is_part_of_content))
@@ -136,4 +137,5 @@ class test_module_content:
                             has_entry("relative_url"), has_entry("pantheon_env")))
           check_that("isPartOf-> pantheon_env",
                      data_from_published_module.json()["module"]["isPartOf"][i]["pantheon_env"], equal_to(env))
+      print(*relative_url1)
       check_that("Relative url to", relative_url1, has_item("/"+published_assembly_relative_url))

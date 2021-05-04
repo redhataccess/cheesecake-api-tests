@@ -113,6 +113,7 @@ class test_assembly_content:
                             has_entry("relative_url")))
           check_that("Modules included-> pantheon_env",
                      data_from_published_assembly.json()["assembly"]["modules_included"][i]["pantheon_env"], equal_to(env))
+      print(*relative_url)
       check_that("Relative url to", relative_url, has_item("/"+published_module_relative_url))
       lcc.log_info("hasPart from the API response: %s" % str(
           data_from_published_assembly.json()["assembly"]["hasPart"]))
@@ -129,4 +130,5 @@ class test_assembly_content:
                             has_entry("relative_url")))
           any_of(check_that("hasPart-> pantheon_env",
                      data_from_published_assembly.json()["assembly"]["hasPart"][i]["pantheon_env"], equal_to(env)))
+      print(*relative_url1)
       check_that("Relative url to", relative_url1, has_item("/"+published_module_relative_url))
