@@ -33,12 +33,11 @@ class test_assembly_content:
       self.variant = utilities.read_variant_name_from_pantheon2config()
       lcc.log_info(str(self.variant))
       self.variant = str(self.variant)
-      self.path_for_module = utilities.select_nth_item_from_search_results(1, fixture.url, module_title_prefix, api_auth)
+      self.path_for_module = utilities.select_nth_item_from_search_results(0, fixture.url, module_title_prefix + " Include", api_auth)
       if "/assemblies" in self.path_for_module:
           self.path_for_module = utilities.select_nth_item_from_search_results(2, fixture.url, module_title_prefix, api_auth)
       res, product_name_uri = utilities.add_metadata(fixture.url, self.path_for_module, self.variant, api_auth,
                                                      setup_test_products, content_type="module")
-      # print(res.content)
       utilities.publish_content(fixture.url, self.path_for_module, self.variant, api_auth)
 
       module_uuid = utilities.fetch_uuid(fixture.url, self.path_for_module, self.variant, api_auth)

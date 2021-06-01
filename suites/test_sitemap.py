@@ -100,7 +100,7 @@ class test_sitemap:
         if(self.now <= published_date <= self.range):
             flag = True
 
-        check_that("Published date and time is in range", flag, is_true())
+        check_that("Published date and time is in range %s to %s" % (self.now, self.range), flag, is_true())
 
         # # Verify that assembly publish time is within current time range
         # all_of(check_that("Published time (Hour)", int(hour), is_between(self.now_hour, self.now_hour_plus_one)),
@@ -158,7 +158,7 @@ class test_sitemap:
         if (self.now <= published_date <= self.range):
             flag = True
 
-        check_that("Published date and time is in range", flag, is_true())
+        check_that("Published date and time is in range %s to %s" % (self.now, self.range), flag, is_true())
 
         lcc.log_info("Verifying if unpublishing a module removes it from the sitemap.xml... ")
 
