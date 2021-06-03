@@ -2,7 +2,8 @@ import sys
 from helpers import base
 import lemoncheesecake.api as lcc
 from lemoncheesecake.matching import *
-
+from html2json import collect
+from urllib.parse import urlparse
 from helpers import constants
 import requests
 from fixtures import fixture
@@ -11,6 +12,8 @@ from helpers import utilities
 import urllib.parse
 import suites.test_module_edit_publish as test_module_edit_publish
 import os
+import subprocess
+import time
 
 sys.path.append("..")
 
@@ -20,6 +23,10 @@ repo_name = base.config_reader('test_repo', 'repo_name')
 assembly_title_prefix = base.config_reader('test_repo', 'assembly_prefix')
 assembly_prefix = base.config_reader('test_repo', 'assembly_content_prefix')
 env = os.getenv('PANTHEON_ENV')
+cp_url = base.config_reader(env,'cp_url')
+cp_pantheon_url = base.config_reader(env, 'cp_pantheon_api')
+proxy_url = base.config_reader(env, 'ext_proxy_url')
+proxy_server = base.config_reader('proxy', 'proxy_server')
 
 
 @lcc.suite(description="Suite: Verify contents of published module", rank=2)
@@ -29,7 +36,7 @@ class test_module_content:
   path_for_module = ""
   request_url = ""
 
-  @lcc.test("Verify response of module variant api")
+  @lcc.test("Verify response of module variant api also verify external proxy url, pantheon URL and CP url resolve imageassets correctly")
   def verify_module_content(self, api_auth, setup_test_products):
       #publishing related assembly
       self.variant = utilities.read_variant_name_from_pantheon2config()
@@ -139,3 +146,23 @@ class test_module_content:
                      data_from_published_module.json()["module"]["isPartOf"][i]["pantheon_env"], equal_to(env))
       print(*relative_url1)
       check_that("Relative url to", relative_url1, has_item("/"+published_assembly_relative_url))
+      time.sleep(10)
+      # Test to verify external proxy url, pantheon URL and CP url resolve image assets correctly
+      proxies = {
+          "http": proxy_server,
+          "https": proxy_server,
+      }
+      body = data_from_published_module.json()["module"]["body"]
+      src = collect(body,{"Path": ["img", "src", []]})
+      path = (src["Path"]).lstrip("/")
+      print(cp_url+path)
+      resp1 = requests.get(cp_url+path, proxies=proxies)
+      print(cp_pantheon_url + path)
+      resp2 = requests.get(cp_pantheon_url + path, proxies=proxies)
+      print(proxy_url+path)
+      resp3 = requests.get(proxy_url+path, proxies=proxies)
+
+      check_that("Imageassets for url behind akamai", resp1.status_code, equal_to(200))
+      check_that("Imageassets for Pantheon url", resp2.status_code, equal_to(200))
+      check_that("Imageassets for external proxy url", resp3.status_code, equal_to(200))
+
