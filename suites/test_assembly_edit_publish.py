@@ -12,9 +12,9 @@ import json
 # from urllib.parse import urlencode
 
 sys.path.append("..")
-
+env = os.environ['PANTHEON_ENV']
 assembly_title_prefix = base.config_reader('test_repo', 'assembly_prefix')
-cp_url = base.config_reader('qa', 'cp_url')
+cp_url = base.config_reader(env, 'cp_url')
 
 
 @lcc.suite(description="Suite: Tests for Assemblies", rank=3)

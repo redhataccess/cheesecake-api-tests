@@ -11,12 +11,14 @@ from helpers import utilities
 # from urllib.parse import urlencode
 import json
 import time
+import os
 
 sys.path.append("..")
 
 module_title_prefix = base.config_reader('test_repo', 'module_prefix')
 module_uuid = ""
-cp_url = base.config_reader('qa', 'cp_url')
+env = os.environ['PANTHEON_ENV']
+cp_url = base.config_reader(env, 'cp_url')
 
 @lcc.suite(description="Suite: Verify that authenticated user can edit metadata and publish module", rank=1)
 class test_module_edit_publish:
