@@ -14,11 +14,15 @@ password=<enter admin password required for teardown operations>
 base_url=https://qa.example.com/
 cp_url=https://cp.example.com/
 solr_url=https://solr.example.com/
+external_proxy_url=https://pantheon.example.com/
+behind_akamai_url=https://api.example.com/
 
 [stage]
 base_url=https://stage.example.com/
 cp_url=https://cp.example.com/
 solr_url=https://solr.example.com/
+external_proxy_url=https://pantheon.example.com/
+behind_akamai_url=https://api.example.com/
 
 [dev]
 base_url=https://stage.example.com/
@@ -29,6 +33,8 @@ solr_url=https://solr.example.com/
 base_url=https://prod.example.com/
 cp_url=https://cp.example.com/
 solr_url=https://solr.example.com/
+external_proxy_url=https://pantheon.example.com/
+behind_akamai_url=https://api.example.com/
 
 [git_import_pod_details]
 dev=<input url for git import tests>
@@ -37,7 +43,8 @@ stage=<input url for git import tests>
 prod=<input url for git import tests>
 
 [proxy]
-proxy_server=<proxy server url>
+[proxy]
+proxy_server=<<proxy server url>>
 
 [test_repo]
 test_repo_url=<URL for test repo to be used, this is a required value for the tests to execute>

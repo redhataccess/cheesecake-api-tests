@@ -17,7 +17,7 @@ sys.path.append("..")
 
 module_title_prefix = base.config_reader('test_repo', 'module_prefix')
 module_uuid = ""
-env = os.environ['PANTHEON_ENV']
+env = fixture.env
 cp_url = base.config_reader(env, 'cp_url')
 
 @lcc.suite(description="Suite: Verify that authenticated user can edit metadata and publish module", rank=1)
@@ -26,7 +26,7 @@ class test_module_edit_publish:
   path_for_module = ""
   request_url = ""
 
-  @lcc.test("Verify that authenticated user can edit metadata successfully")
+  @lcc.test("Verify that authenticated user can edit metadata successfully also verify response of pre-live URL before and after adding metadata")
   def edit_metadata(self, api_auth, setup_test_products):
     self.variant = utilities.read_variant_name_from_pantheon2config()
     lcc.log_info(str(self.variant))

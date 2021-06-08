@@ -12,7 +12,7 @@ import json
 # from urllib.parse import urlencode
 
 sys.path.append("..")
-env = os.environ['PANTHEON_ENV']
+env = fixture.env
 assembly_title_prefix = base.config_reader('test_repo', 'assembly_prefix')
 cp_url = base.config_reader(env, 'cp_url')
 
@@ -22,7 +22,7 @@ class test_assembly_edit_publish:
     api_auth = lcc.inject_fixture("api_auth")
     global product_id
 
-    @lcc.test("Verify that authenticated user can edit metadata for an assembly successfully")
+    @lcc.test("Verify that authenticated user can edit metadata for an assembly successfully also verify response of pre-live URL before and after adding metadata")
     def verify_edit_metadata(self, setup_test_products, api_auth):
         self.variant = utilities.read_variant_name_from_pantheon2config()
         lcc.log_info(str(self.variant))
