@@ -5,7 +5,15 @@ from fixtures import fixture
 from helpers import constants, utilities
 from lemoncheesecake.matching import *
 import xml.etree.ElementTree as ET
-from datetime import datetime,timezone, timedelta
+from datetime import datetime, timezone, timedelta
+
+proxy_server = base.config_reader('proxy', 'proxy_server')
+
+proxies = {
+    "http": proxy_server,
+    "https": proxy_server,
+}
+
 
 @lcc.suite(description="Suite: Verify sitemap api endpoints for assembly and modules", rank=8)
 class test_sitemap:
@@ -24,17 +32,18 @@ class test_sitemap:
     # def check_time_range(time_read):
     range = now + timedelta(minutes=15)
 
-
     def setup_suite(self, setup_test_products, api_auth):
         lcc.log_info("Setup: Adding metadata and publishing module, assembly to test the sitemap endpoint...")
         lcc.log_info("Adding metadata, publishing the assembly first...")
         assembly_title_prefix = base.config_reader('test_repo', 'assembly_prefix')
         self.variant = utilities.read_variant_name_from_pantheon2config()
 
-        self.assembly_path = utilities.select_nth_item_from_search_results(1, fixture.url, assembly_title_prefix, api_auth)
+        self.assembly_path = utilities.select_nth_item_from_search_results(1, fixture.url, assembly_title_prefix,
+                                                                           api_auth)
         lcc.log_info("Assembly path for tests: %s" % self.assembly_path)
         # Add metadata to the assembly
-        res, self.product_name_uri = utilities.add_metadata(fixture.url, self.assembly_path, self.variant, self.api_auth,
+        res, self.product_name_uri = utilities.add_metadata(fixture.url, self.assembly_path, self.variant,
+                                                            self.api_auth,
                                                             setup_test_products, content_type="assembly")
         # Publish the assembly
         publish_response = utilities.publish_content(fixture.url, self.assembly_path, self.variant, self.api_auth)
@@ -51,8 +60,9 @@ class test_sitemap:
         self.module_path = utilities.select_nth_item_from_search_results(0, fixture.url, module_title_prefix, api_auth)
         print(self.module_path)
         # Add metadat to module
-        module_res, self.product_name_uri = utilities.add_metadata(fixture.url, self.module_path, self.variant, self.api_auth,
-                                                            setup_test_products, content_type="module")
+        module_res, self.product_name_uri = utilities.add_metadata(fixture.url, self.module_path, self.variant,
+                                                                   self.api_auth,
+                                                                   setup_test_products, content_type="module")
         # Publish the module
         m_publish_response = utilities.publish_content(fixture.url, self.module_path, self.variant, self.api_auth)
         # Verify if the module was marked released
@@ -97,7 +107,7 @@ class test_sitemap:
         publish_date = publish_date.replace("Z", "+00:00")
         published_date = datetime.fromisoformat(publish_date)
         flag = False
-        if(self.now <= published_date <= self.range):
+        if (self.now <= published_date <= self.range):
             flag = True
 
         check_that("Published date and time is in range %s to %s" % (self.now, self.range), flag, is_true())
@@ -170,3 +180,27 @@ class test_sitemap:
         response1 = api_auth.get(req)
         # Verify unpublished module not listed in sitemap
         check_that("Module Sitemap response", response1.text, not_(contains_string(url_loc)))
+
+    @lcc.test("Verify sitemap API endpoint behind akamai")
+    def verify_module_sitemap_behind_akamai(self, api_auth):
+        req1 = fixture.behind_akamai_url + "api/sitemap/module.sitemap.xml"
+        lcc.log_info(req1)
+        response1 = api_auth.get(req1, proxies=proxies)
+        check_that("status code for Module Sitemap API behind akamai", response1.status_code, equal_to(200))
+
+        req2 = fixture.behind_akamai_url + "api/sitemap/assembly.sitemap.xml"
+        lcc.log_info(req2)
+        response2 = api_auth.get(req2, proxies=proxies)
+        check_that("status code for Assembly Sitemap API behind akamai", response2.status_code, equal_to(200))
+
+    @lcc.test("Verify sitemap API endpoint external proxy")
+    def verify_module_sitemap_ext_proxy(self, api_auth):
+        req1 = fixture.external_proxy_url + "sitemap/module.sitemap.xml"
+        lcc.log_info(req1)
+        response1 = api_auth.get(req1, proxies=proxies)
+        check_that("status code for Module Sitemap API for external proxy", response1.status_code, equal_to(200))
+
+        req2 = fixture.external_proxy_url + "sitemap/assembly.sitemap.xml"
+        lcc.log_info(req2)
+        response2 = api_auth.get(req2, proxies=proxies)
+        check_that("status code for Assembly Sitemap API for external proxy", response2.status_code, equal_to(200))

@@ -28,6 +28,8 @@ if env == "qa":
     git_import_server = base.config_reader('git_import_pod_details', 'qa')
     cp_url = base.config_reader('qa', 'cp_url')
     solr_url = base.config_reader('qa', 'solr_url')
+    behind_akamai_url = base.config_reader('qa', 'behind_akamai_url')
+    external_proxy_url = base.config_reader('qa', 'external_proxy_url')
 elif env == "dev":
     url = base.config_reader('dev', 'base_url')
     git_import_server = base.config_reader('git_import_pod_details', 'dev')
@@ -38,11 +40,15 @@ elif env == "stage":
     git_import_server = base.config_reader('git_import_pod_details', 'stage')
     cp_url = base.config_reader('stage', 'cp_url')
     solr_url = base.config_reader('stage', 'solr_url')
+    behind_akamai_url = base.config_reader('stage', 'behind_akamai_url')
+    external_proxy_url = base.config_reader('stage', 'external_proxy_url')
 elif env == "prod":
     url = base.config_reader('prod', 'base_url')
     git_import_server = base.config_reader('git_import_pod_details', 'prod')
     cp_url = base.config_reader('prod', 'cp_url')
     solr_url = base.config_reader('prod', 'solr_url')
+    behind_akamai_url = base.config_reader('prod', 'behind_akamai_url')
+    external_proxy_url = base.config_reader('prod', 'external_proxy_url')
 else:
     raise Exception("Please set the env variable PANTHEON_ENV as dev/qa/stage specifically. "
                     "To run your tests against QA, run `$export PANTHEON_ENV=qa` before you run the tests")
