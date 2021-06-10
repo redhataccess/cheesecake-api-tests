@@ -14,26 +14,32 @@ password=<enter admin password required for teardown operations>
 base_url=https://qa.example.com/
 cp_url=https://cp.example.com/
 solr_url=https://solr.example.com/
-external_proxy_url=https://pantheon.example.com/
+ext_proxy_url=https://proxy.example.com/
+cp_pantheon_api=https://pantheon_api.com/
 behind_akamai_url=https://api.example.com/
 
 [stage]
 base_url=https://stage.example.com/
 cp_url=https://cp.example.com/
 solr_url=https://solr.example.com/
-external_proxy_url=https://pantheon.example.com/
+ext_proxy_url=https://proxy.example.com/
+cp_pantheon_api=https://pantheon_api.com/
 behind_akamai_url=https://api.example.com/
 
 [dev]
 base_url=https://stage.example.com/
 cp_url=https://cp.example.com/
 solr_url=https://solr.example.com/
+ext_proxy_url=https://proxy.example.com/
+cp_pantheon_api=https://pantheon_api.com/
+
 
 [prod]
 base_url=https://prod.example.com/
 cp_url=https://cp.example.com/
 solr_url=https://solr.example.com/
-external_proxy_url=https://pantheon.example.com/
+ext_proxy_url=https://proxy.example.com/
+cp_pantheon_api=https://pantheon_api.com/
 behind_akamai_url=https://api.example.com/
 
 [git_import_pod_details]
