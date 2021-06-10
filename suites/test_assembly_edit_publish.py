@@ -12,8 +12,9 @@ import json
 # from urllib.parse import urlencode
 
 sys.path.append("..")
-
+env = fixture.env
 assembly_title_prefix = base.config_reader('test_repo', 'assembly_prefix')
+cp_url = base.config_reader(env, 'cp_url')
 
 
 @lcc.suite(description="Suite: Tests for Assemblies", rank=3)
@@ -21,7 +22,7 @@ class test_assembly_edit_publish:
     api_auth = lcc.inject_fixture("api_auth")
     global product_id
 
-    @lcc.test("Verify that authenticated user can edit metadata for an assembly successfully")
+    @lcc.test("Verify that authenticated user can edit metadata for an assembly successfully also verify response of pre-live URL before and after adding metadata")
     def verify_edit_metadata(self, setup_test_products, api_auth):
         self.variant = utilities.read_variant_name_from_pantheon2config()
         lcc.log_info(str(self.variant))
@@ -31,6 +32,13 @@ class test_assembly_edit_publish:
         edit_metadata_url = fixture.url + self.path_for_assembly + "/en_US/variants/" + \
                             self.variant + "/draft/metadata"
         lcc.log_info("Edit metadata request for assembly at : %s " % edit_metadata_url)
+        cp_url_path = fixture.url + self.path_for_assembly + "/en_US/variants/" + self.variant + ".url.json"
+        print(cp_url_path)
+        lcc.log_info("Checking Get CP URL api")
+        resp = self.api_auth.get(cp_url_path)
+        print(resp.json())
+        check_that("Get CP url response", resp.json(), has_entry("type", "ERROR"))
+        check_that("Get CP url response", resp.json(), has_entry("url", "Document does not have associated product/version metadata."))
 
         # Fetch the product id from fixtures/fixtures.py, the test product and version was created as a setup step.
         product_id, product_name_uri = setup_test_products
@@ -62,6 +70,13 @@ class test_assembly_edit_publish:
                    equal_to(constants.assembly_searchkeywords))
         check_that("The URL fragment has been updated successfully", metadata_response["urlFragment"],
                    equal_to(constants.assembly_urlfragment))
+
+        resp = self.api_auth.get(cp_url_path)
+        print(resp.json())
+        url_test = cp_url + "documentation/en-us/" + product_name_uri + "/" + constants.product_version_uri + "/guide/"
+        check_that("Get CP url response", resp.json(), has_entry("type", "PRELIVE"))
+        check_that("Get CP url response", resp.json(), has_entry("url"))
+        check_that("Get CP URL response", resp.json()["url"], contains_string(url_test))
 
 
     @lcc.test("Verify that the user can publish an assembly successfully and check for /api/assembly/variant.json/"

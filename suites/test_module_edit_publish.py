@@ -11,11 +11,14 @@ from helpers import utilities
 # from urllib.parse import urlencode
 import json
 import time
+import os
 
 sys.path.append("..")
 
 module_title_prefix = base.config_reader('test_repo', 'module_prefix')
 module_uuid = ""
+env = fixture.env
+cp_url = base.config_reader(env, 'cp_url')
 
 @lcc.suite(description="Suite: Verify that authenticated user can edit metadata and publish module", rank=1)
 class test_module_edit_publish:
@@ -23,14 +26,21 @@ class test_module_edit_publish:
   path_for_module = ""
   request_url = ""
 
-  @lcc.test("Verify that authenticated user can edit metadata successfully")
+  @lcc.test("Verify that authenticated user can edit metadata successfully also verify response of pre-live URL before and after adding metadata")
   def edit_metadata(self, api_auth, setup_test_products):
     self.variant = utilities.read_variant_name_from_pantheon2config()
     lcc.log_info(str(self.variant))
     self.variant = str(self.variant)
     self.path_for_module = utilities.select_nth_item_from_search_results(0, fixture.url, module_title_prefix, api_auth)
-    edit_metadata_url = fixture.url + self.path_for_module + "/en_US/variants/" +\
-                        self.variant + "/draft/metadata"
+    edit_metadata_url = fixture.url + self.path_for_module + "/en_US/variants/" + self.variant + "/draft/metadata"
+    cp_url_path = fixture.url + self.path_for_module + "/en_US/variants/" + self.variant + ".url.json"
+    print(cp_url_path)
+    lcc.log_info("Checking Get CP URL api")
+    resp = self.api_auth.get(cp_url_path)
+    print(resp.json())
+    check_that("Get CP url response", resp.json(), has_entry("type", "ERROR"))
+    check_that("Get CP url response", resp.json(), has_entry("url", "Document does not have associated product/version metadata."))
+
     lcc.log_info("Edit metadata request for module: %s " % edit_metadata_url)
 
     # Fetch the product id from fixtures, ta test product and version was created as setup step.
@@ -57,6 +67,13 @@ class test_module_edit_publish:
                equal_to(product_id))
     check_that("The document use case has been updated successfully", metadata_response["documentUsecase"],
                equal_to(constants.documentUsecase))
+
+    resp = self.api_auth.get(cp_url_path)
+    print(resp.json())
+    url_test = cp_url + "documentation/en-us/" + product_name_uri + "/" + constants.product_version_uri +"/topic/"
+    check_that("Get CP url response", resp.json(), has_entry("type", "PRELIVE"))
+    check_that("Get CP url response", resp.json(), has_entry("url"))
+    check_that("Get CP URL response", resp.json()["url"], contains_string(url_test))
 
   @lcc.test("Verify that authenticated user can publish module successfully")
   def publish_module(self, api_auth):
