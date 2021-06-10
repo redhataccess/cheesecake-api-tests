@@ -15,6 +15,13 @@ import os
 import subprocess
 import time
 
+proxy_server = base.config_reader('proxy', 'proxy_server')
+
+proxies = {
+    "http": proxy_server,
+    "https": proxy_server,
+}
+
 sys.path.append("..")
 
 module_title_prefix = base.config_reader('test_repo', 'module_prefix')
@@ -27,7 +34,6 @@ cp_url = base.config_reader(env,'cp_url')
 cp_pantheon_url = base.config_reader(env, 'cp_pantheon_api')
 proxy_url = base.config_reader(env, 'ext_proxy_url')
 proxy_server = base.config_reader('proxy', 'proxy_server')
-
 
 @lcc.suite(description="Suite: Verify contents of published module", rank=2)
 class test_module_content:
@@ -146,6 +152,7 @@ class test_module_content:
                      data_from_published_module.json()["module"]["isPartOf"][i]["pantheon_env"], equal_to(env))
       print(*relative_url1)
       check_that("Relative url to", relative_url1, has_item("/"+published_assembly_relative_url))
+
       time.sleep(10)
       # Test to verify external proxy url, pantheon URL and CP url resolve image assets correctly
       proxies = {
@@ -166,3 +173,135 @@ class test_module_content:
       check_that("Imageassets for Pantheon url", resp2.status_code, equal_to(200))
       check_that("Imageassets for external proxy url", resp3.status_code, equal_to(200))
 
+
+  @lcc.test("Verify response of module variant api behind akamai")
+  def verify_module_content_behind_akamai_endpoints(self, api_auth, setup_test_products):
+      module_uuid = utilities.fetch_uuid(fixture.url, self.path_for_module, self.variant, api_auth)
+      published_module_url = fixture.behind_akamai_url + "api/module/variant.json/" + module_uuid
+      # print("published module url: \n" + published_module_url)
+      lcc.log_info("Published Module api endpoint: %s" % published_module_url)
+      data_from_published_module = api_auth.get(published_module_url, proxies= proxies)
+      check_that("The /api/module/variant.json/<module_uuid> endpoint for a published module",
+                 data_from_published_module.status_code, equal_to(200))
+
+      lcc.log_info("Response from published module API endpoint: \n" + str(data_from_published_module.content))
+      check_that("The response is ", data_from_published_module.json()["message"], equal_to("Module Found"))
+      check_that("The title of the module ", data_from_published_module.json()["module"]["title"],
+                 contains_string(module_prefix))
+      check_that("The status of the module ", data_from_published_module.json()["module"]["status"],
+                 equal_to("published"))
+      check_that("The variant uuid of the module", data_from_published_module.json()["module"]["variant_uuid"],
+                 equal_to(module_uuid))
+      check_that("The uuid of the module", data_from_published_module.json()["module"]["uuid"], equal_to(module_uuid))
+      check_that("The abstract of the module", data_from_published_module.json()["module"]["description"],
+                 is_not_none())
+      keywords = constants.searchKeywords.split(',')
+      print(keywords)
+      check_that("Search keywords", data_from_published_module.json()["module"]["search_keywords"], has_items(keywords))
+      check_that("The module type", data_from_published_module.json()["module"]["content_type"], equal_to("module"))
+      # date_published and #date_modified test pending
+      path = self.path_for_module.split("repositories/")[1]
+      path = path + "/en_US/variants/" + self.variant
+      check_that("The module url fragment", data_from_published_module.json()["module"]["module_url_fragment"],
+                 equal_to(path))
+      check_that("The revision_id", data_from_published_module.json()["module"]["revision_id"], equal_to("released"))
+      check_that("The product version", data_from_published_module.json()["module"]["products"][0]["product_version"],
+                 equal_to(constants.product_version))
+      lcc.log_info("Included in guides from the API response: %s" % str(
+          data_from_published_module.json()["module"]["included_in_guides"]))
+      count = len(data_from_published_module.json()["module"]["included_in_guides"])
+      check_that("Number of guides included in", count, greater_than_or_equal_to(1))
+      relative_url = []
+      for i in range(count):
+          print(data_from_published_module.json()["module"]["included_in_guides"][i]["relative_url"])
+          relative_url.append(data_from_published_module.json()["module"]["included_in_guides"][i]["relative_url"])
+          check_that("Included in guides",
+                     data_from_published_module.json()["module"]["included_in_guides"][i]["title"],
+                     contains_string(assembly_title_prefix) or contains_string(assembly_prefix))
+          check_that("Included in guides data", data_from_published_module.json()["module"]["included_in_guides"][i],
+                     all_of(has_entry("title"), has_entry("uuid"), has_entry("url"), has_entry("view_uri"),
+                            has_entry("relative_url"), has_entry("pantheon_env")))
+          check_that("Included in guides-> pantheon_env",
+                     data_from_published_module.json()["module"]["included_in_guides"][i]["pantheon_env"],
+                     equal_to(env))
+      is_part_of_content = data_from_published_module.json()["module"]["isPartOf"]
+      lcc.log_info("Is part of content from the API response: %s " % str(is_part_of_content))
+      is_part_of_count = len(data_from_published_module.json()["module"]["isPartOf"])
+      check_that("Is part of count", is_part_of_count, greater_than_or_equal_to(1))
+      relative_url1 = []
+      for i in range(is_part_of_count):
+          print(data_from_published_module.json()["module"]["isPartOf"][i]["relative_url"])
+          relative_url1.append(data_from_published_module.json()["module"]["isPartOf"][i]["relative_url"])
+          check_that("Is part of", data_from_published_module.json()["module"]["isPartOf"][i]["title"],
+                     contains_string(assembly_title_prefix) or contains_string(assembly_prefix))
+          check_that("isPartOf data", data_from_published_module.json()["module"]["isPartOf"][i],
+                     all_of(has_entry("title"), has_entry("uuid"), has_entry("url"), has_entry("view_uri"),
+                            has_entry("relative_url"), has_entry("pantheon_env")))
+          check_that("isPartOf-> pantheon_env",
+                     data_from_published_module.json()["module"]["isPartOf"][i]["pantheon_env"], equal_to(env))
+
+  @lcc.test("Verify response of module variant api for external proxy API")
+  def verify_module_content_ext_proxy(self, api_auth, setup_test_products):
+      module_uuid = utilities.fetch_uuid(fixture.url, self.path_for_module, self.variant, api_auth)
+      published_module_url = fixture.external_proxy_url + "module/variant.json/" + module_uuid
+      # print("published module url: \n" + published_module_url)
+      lcc.log_info("Published Module api endpoint: %s" % published_module_url)
+      data_from_published_module = api_auth.get(published_module_url, proxies=proxies)
+      check_that("The /api/module/variant.json/<module_uuid> endpoint for a published module",
+                 data_from_published_module.status_code, equal_to(200))
+
+      lcc.log_info("Response from published module API endpoint: \n" + str(data_from_published_module.content))
+      check_that("The response is ", data_from_published_module.json()["message"], equal_to("Module Found"))
+      check_that("The title of the module ", data_from_published_module.json()["module"]["title"],
+                 contains_string(module_prefix))
+      check_that("The status of the module ", data_from_published_module.json()["module"]["status"],
+                 equal_to("published"))
+      check_that("The variant uuid of the module", data_from_published_module.json()["module"]["variant_uuid"],
+                 equal_to(module_uuid))
+      check_that("The uuid of the module", data_from_published_module.json()["module"]["uuid"], equal_to(module_uuid))
+      check_that("The abstract of the module", data_from_published_module.json()["module"]["description"],
+                 is_not_none())
+      keywords = constants.searchKeywords.split(',')
+      print(keywords)
+      check_that("Search keywords", data_from_published_module.json()["module"]["search_keywords"], has_items(keywords))
+      check_that("The module type", data_from_published_module.json()["module"]["content_type"], equal_to("module"))
+      # date_published and #date_modified test pending
+      path = self.path_for_module.split("repositories/")[1]
+      path = path + "/en_US/variants/" + self.variant
+      check_that("The module url fragment", data_from_published_module.json()["module"]["module_url_fragment"],
+                 equal_to(path))
+      check_that("The revision_id", data_from_published_module.json()["module"]["revision_id"], equal_to("released"))
+      check_that("The product version", data_from_published_module.json()["module"]["products"][0]["product_version"],
+                 equal_to(constants.product_version))
+      lcc.log_info("Included in guides from the API response: %s" % str(
+          data_from_published_module.json()["module"]["included_in_guides"]))
+      count = len(data_from_published_module.json()["module"]["included_in_guides"])
+      check_that("Number of guides included in", count, greater_than_or_equal_to(1))
+      relative_url = []
+      for i in range(count):
+          print(data_from_published_module.json()["module"]["included_in_guides"][i]["relative_url"])
+          relative_url.append(data_from_published_module.json()["module"]["included_in_guides"][i]["relative_url"])
+          check_that("Included in guides",
+                     data_from_published_module.json()["module"]["included_in_guides"][i]["title"],
+                     contains_string(assembly_title_prefix) or contains_string(assembly_prefix))
+          check_that("Included in guides data", data_from_published_module.json()["module"]["included_in_guides"][i],
+                     all_of(has_entry("title"), has_entry("uuid"), has_entry("url"), has_entry("view_uri"),
+                            has_entry("relative_url"), has_entry("pantheon_env")))
+          check_that("Included in guides-> pantheon_env",
+                     data_from_published_module.json()["module"]["included_in_guides"][i]["pantheon_env"],
+                     equal_to(env))
+      is_part_of_content = data_from_published_module.json()["module"]["isPartOf"]
+      lcc.log_info("Is part of content from the API response: %s " % str(is_part_of_content))
+      is_part_of_count = len(data_from_published_module.json()["module"]["isPartOf"])
+      check_that("Is part of count", is_part_of_count, greater_than_or_equal_to(1))
+      relative_url1 = []
+      for i in range(is_part_of_count):
+          print(data_from_published_module.json()["module"]["isPartOf"][i]["relative_url"])
+          relative_url1.append(data_from_published_module.json()["module"]["isPartOf"][i]["relative_url"])
+          check_that("Is part of", data_from_published_module.json()["module"]["isPartOf"][i]["title"],
+                     contains_string(assembly_title_prefix) or contains_string(assembly_prefix))
+          check_that("isPartOf data", data_from_published_module.json()["module"]["isPartOf"][i],
+                     all_of(has_entry("title"), has_entry("uuid"), has_entry("url"), has_entry("view_uri"),
+                            has_entry("relative_url"), has_entry("pantheon_env")))
+          check_that("isPartOf-> pantheon_env",
+                     data_from_published_module.json()["module"]["isPartOf"][i]["pantheon_env"], equal_to(env))

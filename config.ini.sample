@@ -16,7 +16,7 @@ cp_url=https://cp.example.com/
 solr_url=https://solr.example.com/
 ext_proxy_url=https://proxy.example.com/
 cp_pantheon_api=https://pantheon_api.com/
-
+behind_akamai_url=https://api.example.com/
 
 [stage]
 base_url=https://stage.example.com/
@@ -24,7 +24,7 @@ cp_url=https://cp.example.com/
 solr_url=https://solr.example.com/
 ext_proxy_url=https://proxy.example.com/
 cp_pantheon_api=https://pantheon_api.com/
-
+behind_akamai_url=https://api.example.com/
 
 [dev]
 base_url=https://stage.example.com/
@@ -40,7 +40,7 @@ cp_url=https://cp.example.com/
 solr_url=https://solr.example.com/
 ext_proxy_url=https://proxy.example.com/
 cp_pantheon_api=https://pantheon_api.com/
-
+behind_akamai_url=https://api.example.com/
 
 [git_import_pod_details]
 dev=<input url for git import tests>
@@ -49,7 +49,8 @@ stage=<input url for git import tests>
 prod=<input url for git import tests>
 
 [proxy]
-proxy_server=<proxy server url>
+[proxy]
+proxy_server=<<proxy server url>>
 
 [test_repo]
 test_repo_url=<URL for test repo to be used, this is a required value for the tests to execute>
