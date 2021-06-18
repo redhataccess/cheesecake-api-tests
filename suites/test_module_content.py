@@ -32,7 +32,7 @@ assembly_prefix = base.config_reader('test_repo', 'assembly_content_prefix')
 env = os.getenv('PANTHEON_ENV')
 cp_url = base.config_reader(env,'cp_url')
 cp_pantheon_url = base.config_reader(env, 'cp_pantheon_api')
-proxy_url = base.config_reader(env, 'ext_proxy_url')
+proxy_url = base.config_reader(env, 'external_proxy_url')
 proxy_server = base.config_reader('proxy', 'proxy_server')
 
 @lcc.suite(description="Suite: Verify contents of published module", rank=2)
