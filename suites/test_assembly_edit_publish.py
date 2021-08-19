@@ -100,7 +100,8 @@ class test_assembly_edit_publish:
         check_that("The publish request is successful", publish_request.status_code, equal_to(200))
 
         # Check if the publish request response returns "url" for Customer Portal: CCS-3860
-        cp_url_returned = publish_request.json()["location"]
+        cp_url_returned = publish_request.json()["path"]
+        print(cp_url_returned)
         check_that("Publish assembly response contains The Customer Portal URL", cp_url_returned,
                    contains_string(fixture.cp_url + "documentation"))
 

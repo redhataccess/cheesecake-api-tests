@@ -150,7 +150,7 @@ class test_assembly_content:
     @lcc.test("Verify response of assembly variant api behind akamai")
     def verify_assembly_content_behind_akamai(self, api_auth):
         assembly_uuid = utilities.fetch_uuid(fixture.url, self.path_for_assembly, self.variant, api_auth)
-        published_assembly_url = fixture.url + "api/assembly/variant.json/" + assembly_uuid
+        published_assembly_url = fixture.behind_akamai_url + "api/assembly/variant.json/" + assembly_uuid
         print("published assembly url: \n" + published_assembly_url)
         lcc.log_info("Published Assembly api endpoint: %s" % published_assembly_url)
         data_from_published_assembly = api_auth.get(published_assembly_url, proxies = proxies)
