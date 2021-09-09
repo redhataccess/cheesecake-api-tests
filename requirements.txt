@@ -5,3 +5,4 @@ git-python
 pyyaml
 git+https://github.com/redhataccess/pantheon-uploader.git
 html2json
+xmltodict
