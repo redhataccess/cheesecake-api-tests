@@ -87,13 +87,10 @@ class test_sitemap:
         xml_dict = json.loads(json.dumps(xml_dict_ord))
         lcc.log_info("Creating a dict for the sitemap endpoint responses for verification...")
 
-        #print(type(xml_dict))
-        #print(xml_dict)
-        #lcc.log_info(xml_dict.items())
+        print(xml_dict.items())
+        #lcc.log_(xml_dict.items())
 
         # Extract published date for recent assembly from the sitemap
-
-
         publish_date = ""
         for k1, v1 in xml_dict.items():
             for k2, v2 in v1.items():
@@ -104,9 +101,6 @@ class test_sitemap:
                             break
 
         check_that("publish_date value assignment check ", publish_date, not_equal_to(""))
-
-
-
         #publish_date = xml_dict[url_loc]
         lcc.log_info("Extracting the publish date for %s as %s" % (url_loc, publish_date))
         # date = publish_date.split("T")
@@ -159,13 +153,6 @@ class test_sitemap:
         lcc.log_info("Creating a dict for the sitemap endpoint responses for verification...")
         # lcc.log_info(root)
 
-        # for sitemap in root:
-        #    children = sitemap.getchildren()
-        #   xml_dict[children[0].text] = children[1].text
-        # lcc.log_info(xml_dict)
-        # xml_dict=dict(xml_dict_ord)
-
-
         # Extract published date for recent assembly from the sitemap
 
         publish_date = ""
@@ -178,22 +165,6 @@ class test_sitemap:
                             break
 
         check_that("publish_date value assignment check ", publish_date, not_equal_to(""))
-
-
-
-        '''
-        root = ET.fromstring(response.content)
-        lcc.log_info("Creating a dict for the sitemap endpoint responses for verification...")
-
-        for sitemap in root:
-            children = sitemap.getchildren()
-            xml_dict[children[0].text] = children[1].text
-
-        print(str(xml_dict))
-
-        # Extract published date for recent assembly from the sitemap
-        publish_date = xml_dict[url_loc]
-        '''
         lcc.log_info("Extracting the publish date for %s as %s" % (url_loc, publish_date))
         # date = publish_date.split("T")
         #
