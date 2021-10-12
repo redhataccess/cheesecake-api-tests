@@ -6,6 +6,8 @@ from helpers import constants, utilities
 from lemoncheesecake.matching import *
 import xml.etree.ElementTree as ET
 from datetime import datetime, timezone, timedelta
+import xmltodict
+import json
 
 proxy_server = base.config_reader('proxy', 'proxy_server')
 
@@ -81,17 +83,25 @@ class test_sitemap:
         check_that("Assembly Sitemap response at endpoint: %s" % req, response.text, contains_string(url_loc))
 
         xml_dict = {}
-        root = ET.fromstring(response.content)
+        xml_dict_ord = xmltodict.parse(response.text)
+        xml_dict = json.loads(json.dumps(xml_dict_ord))
         lcc.log_info("Creating a dict for the sitemap endpoint responses for verification...")
 
-        for sitemap in root:
-            children = sitemap.getchildren()
-            xml_dict[children[0].text] = children[1].text
-
-        print(str(xml_dict))
+        print(xml_dict.items())
+        #lcc.log_(xml_dict.items())
 
         # Extract published date for recent assembly from the sitemap
-        publish_date = xml_dict[url_loc]
+        publish_date = ""
+        for k1, v1 in xml_dict.items():
+            for k2, v2 in v1.items():
+                if (k2 == "url"):
+                    for i in range(len(xml_dict[k1][k2])):
+                        if xml_dict[k1][k2][i]['loc'] == url_loc:
+                            publish_date = xml_dict[k1][k2][i]['lastmod']
+                            break
+
+        check_that("publish_date value assignment check ", publish_date, not_equal_to(""))
+        #publish_date = xml_dict[url_loc]
         lcc.log_info("Extracting the publish date for %s as %s" % (url_loc, publish_date))
         # date = publish_date.split("T")
         #
@@ -135,17 +145,26 @@ class test_sitemap:
         check_that("Module Sitemap response at endpoint: %s" % req, response.text, contains_string(url_loc))
 
         xml_dict = {}
-        root = ET.fromstring(response.content)
+
+        print(url_loc)
+        print(type(response.text))
+        xml_dict_ord = xmltodict.parse(response.text)
+        xml_dict = json.loads(json.dumps(xml_dict_ord))
         lcc.log_info("Creating a dict for the sitemap endpoint responses for verification...")
-
-        for sitemap in root:
-            children = sitemap.getchildren()
-            xml_dict[children[0].text] = children[1].text
-
-        print(str(xml_dict))
+        # lcc.log_info(root)
 
         # Extract published date for recent assembly from the sitemap
-        publish_date = xml_dict[url_loc]
+
+        publish_date = ""
+        for k1, v1 in xml_dict.items():
+            for k2, v2 in v1.items():
+                if (k2 == "url"):
+                    for i in range(len(xml_dict[k1][k2])):
+                        if xml_dict[k1][k2][i]['loc'] == url_loc:
+                            publish_date = xml_dict[k1][k2][i]['lastmod']
+                            break
+
+        check_that("publish_date value assignment check ", publish_date, not_equal_to(""))
         lcc.log_info("Extracting the publish date for %s as %s" % (url_loc, publish_date))
         # date = publish_date.split("T")
         #
