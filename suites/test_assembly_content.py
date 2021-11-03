@@ -17,7 +17,7 @@ proxies = {
             "http": proxy_server,
             "https": proxy_server,
         }
-
+header={'User-Agent': 'Chrome'}
 sys.path.append("..")
 
 assembly_title_prefix = base.config_reader('test_repo', 'assembly_prefix')
@@ -153,7 +153,7 @@ class test_assembly_content:
         published_assembly_url = fixture.behind_akamai_url + "api/assembly/variant.json/" + assembly_uuid
         print("published assembly url: \n" + published_assembly_url)
         lcc.log_info("Published Assembly api endpoint: %s" % published_assembly_url)
-        data_from_published_assembly = api_auth.get(published_assembly_url, proxies = proxies)
+        data_from_published_assembly = api_auth.get(published_assembly_url, proxies = proxies, headers=header)
         print(data_from_published_assembly.content)
         check_that("The /api/assembly/variant.json/<assembly_uuid> endpoint for a published assembly",
                    data_from_published_assembly.status_code, equal_to(200))
@@ -227,7 +227,7 @@ class test_assembly_content:
         published_assembly_url = fixture.external_proxy_url+ "assembly/variant.json/" + assembly_uuid
         print("published assembly url: \n" + published_assembly_url)
         lcc.log_info("Published Assembly api endpoint: %s" % published_assembly_url)
-        data_from_published_assembly = api_auth.get(published_assembly_url, proxies =proxies)
+        data_from_published_assembly = api_auth.get(published_assembly_url, proxies =proxies, headers=header)
         print(data_from_published_assembly.content)
         check_that("The /api/assembly/variant.json/<assembly_uuid> endpoint for a published assembly",
                    data_from_published_assembly.status_code, equal_to(200))

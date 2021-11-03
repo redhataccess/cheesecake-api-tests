@@ -21,6 +21,7 @@ proxies = {
     "http": proxy_server,
     "https": proxy_server,
 }
+header={'User-Agent': 'Chrome'}
 
 sys.path.append("..")
 
@@ -163,11 +164,11 @@ class test_module_content:
       src = collect(body,{"Path": ["img", "src", []]})
       path = (src["Path"]).lstrip("/")
       print(cp_url+path)
-      resp1 = requests.get(cp_url+path, proxies=proxies)
+      resp1 = requests.get(cp_url+path, proxies=proxies, headers=header)
       print(cp_pantheon_url + path)
-      resp2 = requests.get(cp_pantheon_url + path, proxies=proxies)
+      resp2 = requests.get(cp_pantheon_url + path, proxies=proxies, headers=header)
       print(proxy_url+path)
-      resp3 = requests.get(proxy_url+path, proxies=proxies)
+      resp3 = requests.get(proxy_url+path, proxies=proxies, headers=header)
 
       check_that("Imageassets for url behind akamai", resp1.status_code, equal_to(200))
       check_that("Imageassets for Pantheon url", resp2.status_code, equal_to(200))

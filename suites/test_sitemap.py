@@ -15,7 +15,7 @@ proxies = {
     "http": proxy_server,
     "https": proxy_server,
 }
-
+header={'User-Agent': 'Chrome'}
 
 @lcc.suite(description="Suite: Verify sitemap api endpoints for assembly and modules", rank=8)
 class test_sitemap:
@@ -204,22 +204,22 @@ class test_sitemap:
     def verify_module_sitemap_behind_akamai(self, api_auth):
         req1 = fixture.behind_akamai_url + "api/sitemap/module.sitemap.xml"
         lcc.log_info(req1)
-        response1 = api_auth.get(req1, proxies=proxies)
+        response1 = api_auth.get(req1, proxies=proxies, headers=header)
         check_that("status code for Module Sitemap API behind akamai", response1.status_code, equal_to(200))
 
         req2 = fixture.behind_akamai_url + "api/sitemap/assembly.sitemap.xml"
         lcc.log_info(req2)
-        response2 = api_auth.get(req2, proxies=proxies)
+        response2 = api_auth.get(req2, proxies=proxies, headers=header)
         check_that("status code for Assembly Sitemap API behind akamai", response2.status_code, equal_to(200))
 
     @lcc.test("Verify sitemap API endpoint external proxy")
     def verify_module_sitemap_ext_proxy(self, api_auth):
         req1 = fixture.external_proxy_url + "sitemap/module.sitemap.xml"
         lcc.log_info(req1)
-        response1 = api_auth.get(req1, proxies=proxies)
+        response1 = api_auth.get(req1, proxies=proxies, headers=header)
         check_that("status code for Module Sitemap API for external proxy", response1.status_code, equal_to(200))
 
         req2 = fixture.external_proxy_url + "sitemap/assembly.sitemap.xml"
         lcc.log_info(req2)
-        response2 = api_auth.get(req2, proxies=proxies)
+        response2 = api_auth.get(req2, proxies=proxies, headers=header)
         check_that("status code for Assembly Sitemap API for external proxy", response2.status_code, equal_to(200))

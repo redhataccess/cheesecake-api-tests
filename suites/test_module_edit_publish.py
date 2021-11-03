@@ -19,6 +19,7 @@ module_title_prefix = base.config_reader('test_repo', 'module_prefix')
 module_uuid = ""
 env = fixture.env
 cp_url = base.config_reader(env, 'cp_url')
+header={'User-Agent': 'Chrome'}
 
 @lcc.suite(description="Suite: Verify that authenticated user can edit metadata and publish module", rank=1)
 class test_module_edit_publish:
@@ -36,7 +37,7 @@ class test_module_edit_publish:
     cp_url_path = fixture.url + self.path_for_module + "/en_US/variants/" + self.variant + ".url.json"
     print(cp_url_path)
     lcc.log_info("Checking Get CP URL api")
-    resp = self.api_auth.get(cp_url_path)
+    resp = self.api_auth.get(cp_url_path, headers=header)
     print(resp.json())
     check_that("Get CP url response", resp.json(), has_entry("type", "ERROR"))
     check_that("Get CP url response", resp.json(), has_entry("url", "Document does not have associated product/version metadata."))
@@ -68,7 +69,7 @@ class test_module_edit_publish:
     check_that("The document use case has been updated successfully", metadata_response["documentUsecase"],
                equal_to(constants.documentUsecase))
 
-    resp = self.api_auth.get(cp_url_path)
+    resp = self.api_auth.get(cp_url_path, headers=header)
     print(resp.json())
     url_test = cp_url + "documentation/en-us/" + product_name_uri + "/" + constants.product_version_uri +"/topic/"
     check_that("Get CP url response", resp.json(), has_entry("type", "PRELIVE"))

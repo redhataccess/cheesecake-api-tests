@@ -15,6 +15,7 @@ sys.path.append("..")
 env = fixture.env
 assembly_title_prefix = base.config_reader('test_repo', 'assembly_prefix')
 cp_url = base.config_reader(env, 'cp_url')
+header={'User-Agent': 'Chrome'}
 
 
 @lcc.suite(description="Suite: Tests for Assemblies", rank=3)
@@ -35,7 +36,7 @@ class test_assembly_edit_publish:
         cp_url_path = fixture.url + self.path_for_assembly + "/en_US/variants/" + self.variant + ".url.json"
         print(cp_url_path)
         lcc.log_info("Checking Get CP URL api")
-        resp = self.api_auth.get(cp_url_path)
+        resp = self.api_auth.get(cp_url_path, headers=header)
         print(resp.json())
         check_that("Get CP url response", resp.json(), has_entry("type", "ERROR"))
         check_that("Get CP url response", resp.json(), has_entry("url", "Document does not have associated product/version metadata."))
@@ -71,7 +72,7 @@ class test_assembly_edit_publish:
         check_that("The URL fragment has been updated successfully", metadata_response["urlFragment"],
                    equal_to(constants.assembly_urlfragment))
 
-        resp = self.api_auth.get(cp_url_path)
+        resp = self.api_auth.get(cp_url_path, headers=header)
         print(resp.json())
         url_test = cp_url + "documentation/en-us/" + product_name_uri + "/" + constants.product_version_uri + "/guide/"
         check_that("Get CP url response", resp.json(), has_entry("type", "PRELIVE"))
