@@ -109,6 +109,16 @@ class test_assembly_edit_publish:
         check_that("Publish assembly response contains The Customer Portal URL", self.cp_url_returned,
                    contains_string(fixture.cp_url + "documentation"))
 
+
+        #recheck_url = requests.get(self.cp_url_returned)
+        recheck_url=self.api_auth.get(self.cp_url_returned)
+        time.sleep(12)
+        print("Recheck_url=", recheck_url.json())
+        print("Recheck_url_headers=", recheck_url.headers)
+        check_that("cp url request status code after cache clear", recheck_url.status_code, equal_to(200))
+
+
+
         req = api_auth.get(fixture.url + self.path_for_assembly + ".7.json")
 
         check_that("The status node in variants > variant >: ", req.json()["en_US"]["variants"][self.variant],
@@ -134,6 +144,7 @@ class test_assembly_edit_publish:
         check_that("The body of the assembly", published_assembly_request.json()["assembly"]["body"], is_not_none())
         #add a check for date_published, search_keywords, etc.
 
+    '''
     @lcc.test("Verify that acknowledgement was received from Hydra on publishing assembly")
     def ack_status_check(self, api_auth):
       self.request_url = fixture.url + self.path_for_assembly + ".10.json"
@@ -153,7 +164,7 @@ class test_assembly_edit_publish:
       check_that("The published assembly has a successful ACK from Hydra",
                  response.json()["en_US"]["variants"][self.variant]["released"]["ack_status"]["pant:status"],
                  equal_to("SUCCESSFUL"))
-
+    
     @lcc.test("Verify that the assembly was indexed in Solr in docv2 collection")
     def verify_solr_docv2_indexing_assembly(self):
       # Reusing the module id fetched in the above test
@@ -185,7 +196,8 @@ class test_assembly_edit_publish:
                  equal_to(1))
       #add more checks here.
       check_that("The content type source ", solr_request_json["response"]["docs"][0]["source"], equal_to("assembly"))
-
+    '''
+    '''
     @lcc.test("Verify that the assembly is successfully unpublished, Hydra sends an ACK")
     @lcc.depends_on("test_assembly_edit_publish.verify_publish_assembly")
     def unpublish_assembly(self, api_auth):
@@ -201,6 +213,14 @@ class test_assembly_edit_publish:
       lcc.log_info("cp_url_path=%s" % self.cp_url_returned)
       cp_url_returned_cp=self.cp_url_returned
       cacheclear_url = fixture.git_import_server + "/api/cache/clear"
+      print("cp_url_returened_cp=", cp_url_returned_cp)
+      #Checking for the customer portal url before unpublish operation
+      recheck_url= requests.get(cp_url_returned_cp,auth=(fixture.username, fixture.auth))
+      time.sleep(12)
+      #print("Recheck_url=",recheck_url.content)
+      check_that("cp url request status code after cache clear",recheck_url.status_code,equal_to(200))
+
+
       unpublish_assembly_request = self.api_auth.post(unpublish_url, data=payload, headers={'Accept': 'application/json'})
       time.sleep(12)
       check_that("Unpublish request status code", unpublish_assembly_request.status_code, equal_to(200))
@@ -227,18 +247,22 @@ class test_assembly_edit_publish:
 
       #Check if cache clear api is working as expected jira-4720
       payload = {
-         "assemblies":cp_url_returned_cp
+         "assemblies":[cp_url_returned_cp]
         }
       print("cache clear payload=",payload)
       print(cacheclear_url)
-      cacheclear_request = requests.post(cacheclear_url, data=payload,headers={'Content-Type': 'application/x-www-form-urlencoded'}, auth=(fixture.admin_username, fixture.admin_auth))
+      cacheclear_request = requests.post(cacheclear_url, data=json.dumps(payload),headers={'Content-Type': 'application/json'})
       time.sleep(12)
-      print("cache clear logs:====",cacheclear_request.content)
-      check_that("Cache clear request status code", cacheclear_request.status_code, equal_to(201))
-      recheck_url= self.api_auth.get(self.cp_url_returned,headers={'Content-Type': 'application/json'})
+      #print("cache clear logs:====",cacheclear_request.content)
+      check_that("Cache clear request status code", cacheclear_request.status_code, equal_to(200))
+      print("cp_url_returened_cp=",cp_url_returned_cp)
+      #recheck_url= self.api_auth.get(cp_url_returned_cp,headers={'Content-Type': 'application/json'})
+      recheck_url=requests.get(cp_url_returned_cp,headers={'Content-Type': 'application/json'},auth=(fixture.username, fixture.auth))
       time.sleep(12)
-      check_that("cp url request status code after cache clear",recheck_url.status_code,equal_to(503))
+      print("Recheck_url=",recheck_url.content)
+      check_that("cp url request status code after cache clear",recheck_url.status_code,equal_to(404))
 
+    
     @lcc.test("Verify if the assembly is successfully removed from docv2 collection")
     def removed_from_docv2_Solr(self):
       time.sleep(15)
@@ -263,4 +287,5 @@ class test_assembly_edit_publish:
       solr_request_json = solr_request.json()
       lcc.log_info("Response from Solr: %s " % str(solr_request_json))
       check_that("The assembly is removed from access collection in Solr", solr_request_json["response"]["numFound"],
-                 equal_to(0))
+                 equal_to(0))        
+        '''
